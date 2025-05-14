@@ -4,21 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Invoice extends Model
+class OrderItem extends Model
 {
     protected $fillable = [
-        'customer_name',
-        'customer_email',
-        'customer_phone',
-        'customer_address',
-        'status',
-        'total_amount',
+        'id',
+        'orders_id',
+        'product_id',
+        'quantity',
+        'unit_price',
     ];
 
-    public function items()
+    public function order()
     {
-        return $this->hasMany(InvoiceItem::class);
+        return $this->belongsTo(Order::class , 'orders_id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }
-
-

@@ -15,6 +15,7 @@ use Orchid\Screen\Fields\Relation;
 use Orchid\Support\Facades\Alert;
 use App\Models\Category;
 use App\Models\Subcategory;
+use App\Http\Controllers\OrderController;
 
 
 class CommandesScreen extends Screen
@@ -42,6 +43,7 @@ class CommandesScreen extends Screen
     {
         return [
             Layout::rows([
+
                 Group::make([
                     Input::make('order.customer_name')
                         ->title('Nom du client')
@@ -52,55 +54,36 @@ class CommandesScreen extends Screen
                         ->title('Email')
                         ->placeholder('Entrez l\'email du client'),
                 ]),
+
                 Group::make([
                     Input::make('order.customer_phone')
                         ->title('Téléphone'),
 
                     Input::make('order.customer_address')
                         ->title('Adresse'),
-                    ]),
+                ]),
 
-                Relation::make('order.product_id')
-                    ->title('Produit')
-                    ->fromModel(Product::class, 'name')
-                    ->required(),
-            
-                Input::make('order.quantity')
-                    ->title('Quantité')
-                    ->type('number')
-                    ->required(),
-            
+                Group::make([
+                    Relation::make('order.products')   // Utilisation de Relation pour sélectionner des produits
+                        ->title('Produits')
+                        ->fromModel(Product::class, 'name')  // Associer les produits à la commande
+                        ->multiple()
+                        ->required()
+                        ->help('Sélectionnez les produits (Ctrl+clic pour multiple)'),
+
+                    Input::make('order.quantities')  // Les quantités pour chaque produit
+                        ->title('Quantités')
+                        ->type('text')
+                        ->required()
+                        ->help('Format: 1,2,3 (une quantité par produit)')
+                ]),
             ])
-            
         ];
     }
 
     public function save(Request $request)
     {
-        $data = $request->get('order');
-
-        $total = $data['quantity'] * $data['price'];
-
-        // Création de la commande principale
-        $order = Order::create([
-            'customer_name' => $data['customer_name'],
-            'customer_email' => $data['customer_email'],
-            'customer_phone' => $data['customer_phone'],
-            'customer_address' => $data['customer_address'],
-            'status' => 'pending',
-            'total_amount' => $total,
-        ]);
-
-        // Création de l'item associé
-        $order->items()->create([
-            'product_id' => $data['product_id'],
-            'quantity' => $data['quantity'],
-            'price' => $data['price'],
-        ]);
-
-        Alert::info('Commande enregistrée avec succès.');
-
-        return redirect()->route('platform.Commandes');
+        // Logique de sauvegarde de la commande avec produits et quantités
+        return app(OrderController::class)->save($request);
     }
-
 }
