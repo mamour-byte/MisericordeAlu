@@ -19,10 +19,9 @@ class Product extends Model
     {
         return $this->belongsTo(Subcategory::class, 'subcategory_id');
     }
-    public function scopeFilteredBySubcategory($query, $value)
+    public function stockMovements()
     {
-        return $query->where('subcategory_id', $value);
+        return $this->hasMany(StockMovement::class);
     }
-
 
 }

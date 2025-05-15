@@ -59,6 +59,6 @@ class AddFournisseursScreen extends Screen
 
         Alert::info('Fournisseur ajouté avec succès.');
 
-        return redirect()->route('platform.suppliers');
+        return redirect()->route('platform.Fournisseurs');
     }
 }

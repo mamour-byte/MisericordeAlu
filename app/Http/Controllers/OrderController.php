@@ -7,35 +7,34 @@ use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Orchid\Support\Facades\Alert;
+use App\Models\StockMovement;
 
 class OrderController extends Controller
 {
+    
+
     public function save(Request $request)
     {
         $data = $request->get('order');
 
-        // Vérification et préparation des données
         $productIds = $data['products'] ?? [];
         $quantities = $data['quantities'] ?? [];
 
-        // Gérer le cas où les quantités sont sous forme de chaîne "1,2,3"
         if (is_string($quantities)) {
             $quantities = explode(',', $quantities);
         }
 
         $total = 0;
 
-        // Création de la commande
         $order = Order::create([
             'customer_name'    => $data['customer_name'],
             'customer_email'   => $data['customer_email'],
             'customer_phone'   => $data['customer_phone'],
             'customer_address' => $data['customer_address'],
             'status'           => 'pending',
-            'total_amount'     => 0, // temporaire
+            'total_amount'     => 0,
         ]);
 
-        // Ajout des produits
         foreach ($productIds as $key => $productId) {
             $product = Product::findOrFail($productId);
             $quantity = isset($quantities[$key]) ? (int) $quantities[$key] : 0;
@@ -49,14 +48,26 @@ class OrderController extends Controller
                 'unit_price' => $unit_price,
             ]);
 
+            // Déduction du stock
+            $product->decrement('stock_quantity', $quantity);
+
+            // Enregistrement du mouvement de stock
+            StockMovement::create([
+                'product_id' => $product->id,
+                'orders_id'  => $order->id,
+                'type'       => StockMovement::TYPE_EXIT,
+                'quantity'   => $quantity,
+                'notes'      => 'Sortie stock liée à la commande #' . $order->id,
+            ]);
+
             $total += $item_total;
         }
 
-        // Mise à jour du montant total de la commande
         $order->update(['total_amount' => $total]);
 
         Alert::info('Commande enregistrée avec succès.');
 
         return redirect()->route('platform.Commandes');
     }
+
 }

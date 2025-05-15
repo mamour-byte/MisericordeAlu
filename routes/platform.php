@@ -66,9 +66,6 @@ Route::screen('Product/edit/{product}', EditProductScreen::class)
 Route::screen('Docs', DocsScreen::class)
     ->name('platform.Docs');
 
-Route::screen('Stock', StockScreen::class)
-    ->name('platform.Stock');
-
 Route::screen('Commandes', CommandesScreen::class)
     ->name('platform.Commandes');
 

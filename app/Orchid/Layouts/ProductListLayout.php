@@ -32,9 +32,42 @@ class ProductListLayout extends Table
                 ->render(fn ($product) => optional($product->subcategory)->name ?? '—')
                 ->sort(),
 
-            TD::make('stock_quantity', 'Quantité en stock')
-                ->render(fn ($product) => $product->stock_quantity)
-                ->sort(),
+            TD::make('stockMovements', 'Ventes / Stock')
+                ->render(function (Product $product) {
+                    $totalEntree = $product->stockMovements->where('type', 'entry')->sum('quantity');
+                    $totalSortie = $product->stockMovements->where('type', 'exit')->sum('quantity');
+
+                    if ($totalEntree === 0) {
+                        return '<div class="text-muted">Aucun stock enregistré</div>';
+                    }
+
+                    $pourcentage = round(($totalSortie / $totalEntree) * 100);
+
+                    // Détermination de la couleur
+                    $couleur = 'bg-success'; // vert
+                    if ($pourcentage >= 95) {
+                        $couleur = 'bg-danger'; // rouge
+                    } elseif ($pourcentage >= 80) {
+                        $couleur = 'bg-warning'; // orange
+                    }
+
+                    $bar = <<<HTML
+                        <div>
+                            <div class="small mb-1">
+                                Vendu : {$totalSortie} / {$totalEntree} 
+                                <span class="float-right">{$pourcentage}%</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar {$couleur}" role="progressbar" style="width: {$pourcentage}%;" aria-valuenow="{$pourcentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    HTML;
+
+                    return $bar;
+                })
+                ->width('250px')
+                ->cantHide(),
+
 
             TD::make(__('Actions'))
                 ->align(TD::ALIGN_CENTER)

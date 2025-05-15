@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Subcategory;
 use Orchid\Support\Facades\Alert;
+use App\Models\StockMovement;
 
 
 
@@ -92,13 +93,24 @@ class AddProductScreen extends Screen
         ];
     }
 
+
     public function save(Request $request)
     {
         $data = $request->get('product');
-        // dd($data);
 
-        Product::create($data);
+        $product = Product::create($data);
+
+        StockMovement::create([
+            'product_id' => $product->id,
+            'orders_id'  => null, 
+            'type'       => StockMovement::TYPE_ENTRY,
+            'quantity'   => $product->stock_quantity,
+            'notes'      => 'Ajout initial du produit',
+        ]);
+
+        Alert::success('Produit ajouté avec succès.');
 
         return redirect()->route('platform.Product');
     }
+
 }

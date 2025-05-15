@@ -20,9 +20,10 @@ class ProductScreen extends Screen
     public function query(): iterable
         {
             return [
-                'products' => Product::latest()->paginate(10),
+                'products' => Product::with('stockMovements')->paginate(15),
             ];
         }
+
 
     /**
      * The name of the screen displayed in the header.
@@ -44,7 +45,7 @@ class ProductScreen extends Screen
         return [
             Link::make(__('Add'))
                 ->icon('bs.plus-circle')
-                ->route('platform.Fournisseurs.addFournisseurs'),
+                ->route('platform.Product.add'),
         ];
     }
 

@@ -30,7 +30,7 @@ class CommandesScreen extends Screen
     public function query(): iterable
     {
         return [
-            'Commandes' => Order::with(['items.product'])->latest()->paginate(10),
+            // 'Commandes' => Order::with(['items.product'])->latest()->paginate(10),
         ];
     }
 

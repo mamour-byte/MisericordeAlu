@@ -53,10 +53,6 @@ class PlatformProvider extends OrchidServiceProvider
                 ->icon('bs.cart')
                 ->route('platform.Commandes'),
 
-            Menu::make(__('Stock'))
-                ->icon('bs.box')
-                ->route('platform.Stock'),
-
             Menu::make(__('Fournisseurs'))
                 ->icon('bs.truck')
                 ->route('platform.Fournisseurs'),

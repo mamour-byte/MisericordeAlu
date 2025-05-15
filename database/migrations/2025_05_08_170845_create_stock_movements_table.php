@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->foreignId('orders_id')->nullable()->constrained('orders')->onDelete('set null');
             $table->enum('type', ['entry', 'exit']);
             $table->integer('quantity');
-            $table->string('source');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

@@ -6,39 +6,56 @@ namespace App\Orchid\Screens;
 
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Layout;
+use App\Http\Controllers\ChartController;
+use App\Orchid\Layouts\Charts\ProductChart;
+use App\Orchid\Layouts\Charts\OrderChart;
 
 class PlatformScreen extends Screen
 {
     /**
-     * Fetch data to be displayed on the screen.
+     * Récupère les données à afficher.
      *
      * @return array
      */
     public function query(): iterable
-    {
-        return [];
-    }
+        {
+            $chart = app(ChartController::class);
+            $ventesParProduit = $chart->VentesParProduit();
+            $ventesSemaine = $chart->VentesSemaine();
+
+            return [
+                'metrics' => [
+                    'Meilleur Vente'  => $chart->MeilleurVenteMois(),
+                    'Meilleur Client' => $chart->MeilleurClientMois(),
+                    'Ventes du Jour'  => $chart->VentesJour(),
+                    'Total Semaine'   => $chart->TotalSemaine(),
+                    'Total Mois'      => $chart->TotalMois(),
+                ],
+                'ProductData' => $ventesParProduit,
+                'OrderData'   => $ventesSemaine,
+            ];
+        }
+
+
 
     /**
-     * The name of the screen displayed in the header.
+     * Nom affiché en header.
      */
     public function name(): ?string
     {
-        return 'Tableu de bord';
+        return 'Tableau de bord';
     }
 
     /**
-     * Display header description.
+     * Description affichée sous le titre.
      */
     public function description(): ?string
     {
-        return "Bienvenue sur l'applis Misericorde Alu .";
+        return "Bienvenue sur l'application Misericorde Alu.";
     }
 
     /**
-     * The screen's action buttons.
-     *
-     * @return \Orchid\Screen\Action[]
+     * Boutons de commande (aucun ici).
      */
     public function commandBar(): iterable
     {
@@ -46,14 +63,22 @@ class PlatformScreen extends Screen
     }
 
     /**
-     * The screen's layout elements.
-     *
-     * @return \Orchid\Screen\Layout[]
+     * Layout des éléments de l'écran.
      */
     public function layout(): iterable
     {
         return [
-
+            Layout::metrics([
+                'Meilleur Vente'  => 'metrics.Meilleur Vente',
+                'Meilleur Client' => 'metrics.Meilleur Client',
+                'Ventes du Jour'  => 'metrics.Ventes du Jour',
+                'Total Semaine'   => 'metrics.Total Semaine',
+                'Total Mois'      => 'metrics.Total Mois',
+            ]),
+            
+            ProductChart::class,
+            OrderChart::class,
+                
         ];
     }
 }
