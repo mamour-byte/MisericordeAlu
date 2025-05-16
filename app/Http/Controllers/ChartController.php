@@ -129,9 +129,23 @@ class ChartController extends Controller
             return User::select('users.id', 'users.name', DB::raw('COUNT(orders.id) as total_commandes'), DB::raw('SUM(orders.total_amount) as total_ventes'))
                 ->join('orders', 'users.id', '=', 'orders.user_id')
                 ->groupBy('users.id', 'users.name')
-                ->orderByDesc('total_ventes') // ou 'total_commandes'
-                ->take(5) // top 5
+                ->orderByDesc('total_ventes')
+                ->take(5) 
                 ->get();
         }
+    
+    public function VentesParUser(){
+        $ventesParUser = Order::select('user_id', DB::raw('SUM(total_amount) as total_ventes'))
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->groupBy('user_id')
+            ->with('user')
+            ->get();
+
+        return [[
+            'labels' => $ventesParUser->map(fn($item) => $item->user->name ?? 'Utilisateur inconnu')->toArray(),
+            'values' => $ventesParUser->pluck('total_ventes')->toArray(),
+        ]];
+    }
 
 }

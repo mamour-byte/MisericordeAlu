@@ -9,9 +9,12 @@ use Orchid\Support\Facades\Layout;
 use App\Http\Controllers\ChartController;
 use App\Orchid\Layouts\Charts\ProductChart;
 use App\Orchid\Layouts\Charts\OrderChart;
+use App\Orchid\Layouts\Charts\UserSellingChart;
+use App\Orchid\Layouts\Charts\DocsChart;
 use App\Orchid\Layouts\Charts\MeilleursVendeursLayout;
 use App\Orchid\Layouts\OrderTabs\OrderLayout;
 use App\Models\Order;
+use Orchid\Screen\TD;
 
 class PlatformScreen extends Screen
 {
@@ -26,6 +29,7 @@ class PlatformScreen extends Screen
             $ventesParProduit = $chart->VentesParProduit();
             $ventesSemaine = $chart->VentesSemaine();
             $meilleursVendeurs = $chart->MeilleursVendeurs();
+            $venteParUser= $chart->VentesParUser();
 
 
             return [
@@ -39,8 +43,12 @@ class PlatformScreen extends Screen
                 'ProductData' => $ventesParProduit,
                 'OrderData'   => $ventesSemaine,
 
-                'Commandes' => Order::with(['items.product'])->latest()->paginate(10),
+                'Commandes' => Order::with(['items.product'])
+                                ->latest()
+                                ->paginate(8),
+
                 'meilleursVendeurs' => $meilleursVendeurs,
+                'VendeursData' => $venteParUser,
             ];
         }
 
@@ -94,9 +102,35 @@ class PlatformScreen extends Screen
                 ProductChart::class,
             ]),
 
+            
             layout::columns([
+
                 MeilleursVendeursLayout::class,
+
+                UserSellingChart::class,
             ]),
+
+            Layout::table('Commandes', [
+                        TD::make('customer_name')
+                            ->sort()
+                            ->render(fn(Order $order) => $order->customer_name ?? 'Inconnu'),
+                        TD::make('total_amount')
+                            ->sort()
+                            ->render(fn(Order $order) => $order->total_amount),
+                        TD::make('status')
+                            ->sort()
+                            ->render(function(Order $order) {
+                                $color = match($order->status) {
+                                    'pending' => 'text-warning',
+                                    'approved' => 'text-success',
+                                    default => 'text-muted'
+                                };
+                                return "<span class='{$color}'>{$order->status}</span>";
+                            }),
+                        TD::make('Date de création')
+                            ->sort()
+                            ->render(fn(Order $order) => $order->created_at),
+                        ]),
 
             
             

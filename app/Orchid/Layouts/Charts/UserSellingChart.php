@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Orchid\Layouts;
+namespace App\Orchid\Layouts\Charts;
 
 use Orchid\Screen\Layouts\Chart;
 
-class DocsChart extends Chart
+class UserSellingChart extends Chart
 {
     /**
      * Available options:
@@ -13,7 +13,7 @@ class DocsChart extends Chart
      *
      * @var string
      */
-    protected $type = 'line';
+    protected $type = 'pie';
 
     /**
      * Determines whether to display the export button.
@@ -21,4 +21,10 @@ class DocsChart extends Chart
      * @var bool
      */
     protected $export = true;
+    /**
+     * Chart data.
+     *
+     * @var string
+     */
+    protected $target = 'VendeursData';
 }
