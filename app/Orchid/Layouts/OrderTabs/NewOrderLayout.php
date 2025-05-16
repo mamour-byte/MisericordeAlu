@@ -56,6 +56,14 @@ class NewOrderLayout extends Rows
                         ->help('Format: 1,2,3 (une quantité par produit)'),
                      ]),
 
+                    Select::make('order.Docs')
+                        ->title('Statut')
+                        ->options([
+                            'Quote'   => 'Devis',
+                            'Invoice' => 'Facture',
+                        ])
+                        ->empty('Sélectionnez un statut'),
+
                      Button::make('Nouvelle Vente')
                         ->method('save')
                         ->confirm('Confirmez l\'ajout au tableau?')

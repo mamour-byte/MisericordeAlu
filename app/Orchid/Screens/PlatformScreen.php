@@ -9,6 +9,9 @@ use Orchid\Support\Facades\Layout;
 use App\Http\Controllers\ChartController;
 use App\Orchid\Layouts\Charts\ProductChart;
 use App\Orchid\Layouts\Charts\OrderChart;
+use App\Orchid\Layouts\Charts\MeilleursVendeursLayout;
+use App\Orchid\Layouts\OrderTabs\OrderLayout;
+use App\Models\Order;
 
 class PlatformScreen extends Screen
 {
@@ -22,6 +25,8 @@ class PlatformScreen extends Screen
             $chart = app(ChartController::class);
             $ventesParProduit = $chart->VentesParProduit();
             $ventesSemaine = $chart->VentesSemaine();
+            $meilleursVendeurs = $chart->MeilleursVendeurs();
+
 
             return [
                 'metrics' => [
@@ -33,8 +38,12 @@ class PlatformScreen extends Screen
                 ],
                 'ProductData' => $ventesParProduit,
                 'OrderData'   => $ventesSemaine,
+
+                'Commandes' => Order::with(['items.product'])->latest()->paginate(10),
+                'meilleursVendeurs' => $meilleursVendeurs,
             ];
         }
+
 
 
 
@@ -68,17 +77,30 @@ class PlatformScreen extends Screen
     public function layout(): iterable
     {
         return [
-            Layout::metrics([
-                'Meilleur Vente'  => 'metrics.Meilleur Vente',
-                'Meilleur Client' => 'metrics.Meilleur Client',
-                'Ventes du Jour'  => 'metrics.Ventes du Jour',
-                'Total Semaine'   => 'metrics.Total Semaine',
-                'Total Mois'      => 'metrics.Total Mois',
+
+            // Première ligne : métriques classiques
+            Layout::columns([
+                Layout::metrics([
+                    'Meilleur Vente'  => 'metrics.Meilleur Vente',
+                    'Meilleur Client' => 'metrics.Meilleur Client',
+                    'Ventes du Jour'  => 'metrics.Ventes du Jour',
+                    'Total Semaine'   => 'metrics.Total Semaine',
+                    'Total Mois'      => 'metrics.Total Mois',
+                ]),
             ]),
+
+            Layout::columns([
+                OrderChart::class,
+                ProductChart::class,
+            ]),
+
+            layout::columns([
+                MeilleursVendeursLayout::class,
+            ]),
+
             
-            ProductChart::class,
-            OrderChart::class,
-                
+            
         ];
     }
+
 }

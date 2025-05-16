@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -73,17 +74,21 @@ class ChartController extends Controller
     }
     
     public function VentesParProduit(): array
-        {
-            $ventesParProduit = OrderItem::select('product_id', DB::raw('SUM(quantity) as total_ventes'))
-                ->with('product')
-                ->groupBy('product_id')
-                ->get();
+    {
+        $ventesParProduit = OrderItem::select('product_id', DB::raw('SUM(quantity) as total_ventes'))
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->with('product')
+            ->groupBy('product_id')
+            ->take(10)
+            ->get();
 
-            return [[
-                'labels' => $ventesParProduit->map(fn($item) => $item->product->name ?? 'Produit inconnu')->toArray(),
-                'values' => $ventesParProduit->pluck('total_ventes')->toArray(),
-            ]];
-        }
+        return [[
+            'labels' => $ventesParProduit->map(fn($item) => $item->product->name ?? 'Produit inconnu')->toArray(),
+            'values' => $ventesParProduit->pluck('total_ventes')->toArray(),
+        ]];
+    }
+
     
     public function VentesSemaine(): array
         {
@@ -119,6 +124,14 @@ class ChartController extends Controller
             ]];
         }
 
-
+    public function MeilleursVendeurs()
+        {
+            return User::select('users.id', 'users.name', DB::raw('COUNT(orders.id) as total_commandes'), DB::raw('SUM(orders.total_amount) as total_ventes'))
+                ->join('orders', 'users.id', '=', 'orders.user_id')
+                ->groupBy('users.id', 'users.name')
+                ->orderByDesc('total_ventes') // ou 'total_commandes'
+                ->take(5) // top 5
+                ->get();
+        }
 
 }

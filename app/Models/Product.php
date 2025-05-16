@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-
 class Product extends Model
 {
     protected $fillable = [
@@ -15,13 +14,19 @@ class Product extends Model
         'stock_min', 
         'subcategory_id',
     ];
+
     public function subcategory()
     {
         return $this->belongsTo(Subcategory::class, 'subcategory_id');
     }
+
     public function stockMovements()
     {
         return $this->hasMany(StockMovement::class);
     }
 
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

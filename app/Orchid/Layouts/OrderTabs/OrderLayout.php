@@ -5,7 +5,9 @@ namespace App\Orchid\Layouts\OrderTabs;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 use Orchid\Screen\Actions\Button;
-use App\Models\Order;
+use Orchid\Screen\Actions\DropDown;
+use App\Models\Order;   
+use Orchid\Screen\Actions\Link;
 
 class OrderLayout extends Table
 {
@@ -14,44 +16,57 @@ class OrderLayout extends Table
     protected function columns(): iterable
     {
         return [
-            TD::make('customer_name', 'order'),
+            TD::make('customer_name', 'Client')
+                ->render(function (Order $order) {
+                    return $order->customer_name ? $order->customer_name : 'Client inconnu';
+                }),
 
             TD::make('produits', 'Produits')
                 ->render(function (Order $order) {
                     return $order->items->map(function ($item) {
-                        $product = $item->product;
-                        if (!$product) {
-                            return 'Produit supprimé (x' . $item->quantity . ')';
-                        }
-                        return $product->name
-                            . ' (x' . $item->quantity . ') - '
-                            . number_format($product->price) . ' F CFA';
-                    })->implode('<br>');
+                        return $item->product->name ?? 'N/A';
+                    })->implode(', ');
                 }),
-
+            
             TD::make('total_amount', 'Montant total')
                 ->render(function (Order $order) {
-                    return number_format($order->total_amount, 2) . ' F CFA';
-                }),
-
-            TD::make('created_at', 'Date de création')
-                ->render(function (Order $order) {
-                    return $order->created_at->format('d/m/Y H:i');
+                    return number_format($order->total_amount, 2, ',', ' ') . ' F CFA';
                 }),
 
             TD::make('status', 'Statut')
                 ->render(function (Order $order) {
-                    return $order->status == 'pending' ? 'En attente' : 'Terminé';
+                    return $order->status === 'pending' ? 'En attente' : 'Terminé';
                 }),
 
-            TD::make('action', 'Action')
+
+            TD::make('pdf', 'PDF')
                 ->render(function (Order $order) {
-                    return Button::make('Voir')
-                        ->icon('eye')
-                        ->method('view', [
-                            'id' => $order->id,
-                        ]);
+                    return Button::make('Télécharger')
+                        ->method('downloadPDF')
+                        ->parameters(['id' => $order->id])
+                        ->icon('bs.file-earmark-pdf')
+                        ->class('btn btn-success btn-sm');
                 }),
+
+            TD::make(__('Actions'))
+                ->align(TD::ALIGN_CENTER)
+                ->width('100px')
+                ->render(fn (Order $order) => DropDown::make()
+                    ->icon('bs.three-dots-vertical')
+                    ->list([
+
+                        Link::make(__('Edit'))
+                            ->icon('bs.pencil'),
+
+                        Button::make(__('Delete'))
+                            ->icon('bs.trash3')
+                            ->confirm(__('Once the account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.'))
+                            
+                    ])),
+
+            
+
+
         ];
     }
 }

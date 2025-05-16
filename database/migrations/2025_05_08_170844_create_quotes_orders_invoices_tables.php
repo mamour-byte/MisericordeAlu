@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        foreach (['quotes', 'orders', 'invoices'] as $table) {
+        foreach (['quote', 'order', 'invoice'] as $table) {
             Schema::create($table, function (Blueprint $table) {
                 $table->id();
                 $table->string('customer_name');
