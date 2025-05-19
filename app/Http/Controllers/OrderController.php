@@ -45,7 +45,7 @@ class OrderController extends Controller
                 'customer_email'   => $data['customer_email'],
                 'customer_phone'   => $data['customer_phone'],
                 'customer_address' => $data['customer_address'],
-                'status'           => 'pending',
+                'status' => $documentType === 'Invoice' ? 'approved' : 'pending',
                 'total_amount'     => 0,
                 'user_id'          => Auth::id(),
             ]);

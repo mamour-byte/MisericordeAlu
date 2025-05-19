@@ -64,7 +64,7 @@ class NewOrderLayout extends Rows
                         ])
                         ->empty('Sélectionnez un statut'),
 
-                     Button::make('Nouvelle Vente')
+                    Button::make('Nouvelle Vente')
                         ->method('save')
                         ->confirm('Confirmez l\'ajout au tableau?')
                         ->class('btn btn-primary'),
