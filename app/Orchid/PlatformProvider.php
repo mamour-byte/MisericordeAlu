@@ -43,15 +43,19 @@ class PlatformProvider extends OrchidServiceProvider
                 ->icon('bs.file-earmark-text')
                 ->title('Gestion des factures & Devis')
                 ->route('platform.Docs'),
-            
-            Menu::make(__('Produits'))
-                ->icon('bs.basket')
-                ->title('Gestion des commandes')
-                ->route('platform.Product'),
 
             Menu::make(__('Commandes'))
                 ->icon('bs.cart')
                 ->route('platform.Commandes'),
+
+            Menu::make(__('Fabrication'))
+                ->icon('bs.border')
+                ->route('platform.Fabrication'),
+            
+            Menu::make(__('Produits'))
+                ->icon('bs.basket')
+                ->title('Produits & Fournisseurs')
+                ->route('platform.Product'),
 
             Menu::make(__('Fournisseurs'))
                 ->icon('bs.truck')

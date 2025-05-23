@@ -38,18 +38,6 @@ class OrderLayout extends Table
                     return $order->status === 'pending' ? 'En attente' : 'Terminé';
                 }),
 
-
-            TD::make('pdf', 'PDF')
-                ->render(function (Order $order) {
-                    return Link::make('')
-                        ->method('downloadPDF')
-                        ->icon('bs.file-earmark-pdf')
-                        ->class('btn btn-success btn-sm')
-                        ->route('platform.facture.preview', [
-                            'id' => $order->id,
-                        ]);
-                }),
-
             TD::make(__('Actions'))
                 ->align(TD::ALIGN_CENTER)
                 ->width('100px')
@@ -66,6 +54,18 @@ class OrderLayout extends Table
                             ->confirm(__('Once the account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.'))
                             
                     ])),
+
+
+            TD::make('pdf', 'PDF')
+                ->render(function (Order $order) {
+                    return Link::make('')
+                        ->method('downloadPDF')
+                        ->icon('bs.file-earmark-pdf')
+                        ->class('btn btn-success btn-sm')
+                        ->route('platform.facture.preview', [
+                            'id' => $order->id,
+                        ]);
+                }),
 
             
 
