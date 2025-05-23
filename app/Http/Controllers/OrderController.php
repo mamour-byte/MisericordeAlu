@@ -16,6 +16,35 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
+
+   private function generateDocumentNumber(string $type): string
+    {
+        $prefix = $type === 'Invoice' ? 'INV-' : 'QT-';
+
+        if ($type === 'Invoice') {
+            $lastNumber = \App\Models\Invoice::whereNotNull('no_invoice')
+                ->orderByDesc('id')
+                ->value('no_invoice');
+        } else {
+            $lastNumber = \App\Models\Quote::whereNotNull('no_quote')
+                ->orderByDesc('id')
+                ->value('no_quote');
+        }
+
+        if ($lastNumber) {
+            // Extraire la partie numérique et incrémenter
+            $number = (int) str_replace($prefix, '', $lastNumber);
+            $number++;
+        } else {
+            $number = 1;
+        }
+
+        // Retourner le numéro formaté
+        return $prefix . str_pad($number, 5, '0', STR_PAD_LEFT);
+    }
+
+
+
     public function save(Request $request)
     {
         $data = $request->get('order');
@@ -28,6 +57,7 @@ class OrderController extends Controller
         }
 
         $documentType = $data['Docs'] ?? 'Invoice';
+        $documentNumber = $this->generateDocumentNumber($documentType);
 
         if (count($productIds) !== count($quantities)) {
             Toast::error('Le nombre de produits ne correspond pas aux quantités.');
@@ -45,10 +75,11 @@ class OrderController extends Controller
                 'customer_email'   => $data['customer_email'],
                 'customer_phone'   => $data['customer_phone'],
                 'customer_address' => $data['customer_address'],
-                'status' => $documentType === 'Invoice' ? 'approved' : 'pending',
+                'status'           => $documentType === 'Invoice' ? 'approved' : 'pending',
                 'total_amount'     => 0,
                 'user_id'          => Auth::id(),
             ]);
+
 
             $items = [];
 
@@ -87,6 +118,7 @@ class OrderController extends Controller
                     'customer_address' => $data['customer_address'],
                     'status'           => 'approved',
                     'total_amount'     => $total,
+                    'no_invoice'       => $documentType === 'Invoice' ? $documentNumber : null,
                 ]);
 
                 foreach ($items as $item) {
@@ -101,6 +133,7 @@ class OrderController extends Controller
                     'customer_address' => $data['customer_address'],
                     'status'           => 'pending',
                     'total_amount'     => $total,
+                    'no_quote'         => $documentType === 'Quote'   ? $documentNumber : null,
                 ]);
 
                 foreach ($items as $item) {

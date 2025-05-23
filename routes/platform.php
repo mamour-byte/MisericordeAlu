@@ -11,6 +11,9 @@ use App\Orchid\Screens\ProductScreen;
 use App\Orchid\Screens\DocsScreen;
 use App\Orchid\Screens\StockScreen;
 use App\Orchid\Screens\CommandesScreen;
+use App\Orchid\Screens\FacturePreviewScreen;
+
+use App\Orchid\Screens\Crud\EditCommandeScreen;
 use App\Orchid\Screens\FournisseursScreen;
 use App\Orchid\Screens\crud\EditProductScreen;
 use App\Orchid\Screens\crud\AddProductScreen;
@@ -66,8 +69,16 @@ Route::screen('Product/edit/{product}', EditProductScreen::class)
 Route::screen('Docs', DocsScreen::class)
     ->name('platform.Docs');
 
+// Platform > Commandes
 Route::screen('Commandes', CommandesScreen::class)
     ->name('platform.Commandes');
+
+// Platform > Commandes > Edit
+Route::screen('Commandes/edit/{vente}', EditCommandeScreen::class)
+    ->name('platform.Commandes.edit');
+    // ->breadcrumbs(fn (Trail $trail, $id) => $trail
+    //     ->parent('platform.Commandes')
+    //     ->push(__('Edit Vente'), route('platform.Commandes.edit', $id)));
 
 
 // Platform > Fournisseurs
@@ -92,6 +103,16 @@ Route::screen('Fournisseurs/editFournisseurs/{supplier}', editFournisseursScreen
         ->push(__('Edit Fournisseur'), route('platform.Fournisseurs.editFournisseurs', $id)));
 
 
+// Platform > Facture
+Route::screen('facture/preview', FacturePreviewScreen::class)
+    ->name('platform.facture.preview')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push(__('Facture'), route('platform.facture.preview')));
+
+
+Route::get('facture/download', [FactureController::class, 'download'])
+    ->name('platform.facture.download');
 
 
 // Platform > Profile

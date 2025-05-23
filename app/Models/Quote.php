@@ -13,10 +13,12 @@ class Quote extends Model
         'customer_address',
         'status',
         'total_amount',
+        'no_quote',
     ];
 
     public function items()
     {
         return $this->hasMany(QuoteItem::class);
     }
+
 }

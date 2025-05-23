@@ -41,11 +41,13 @@ class OrderLayout extends Table
 
             TD::make('pdf', 'PDF')
                 ->render(function (Order $order) {
-                    return Button::make('Télécharger')
+                    return Link::make('')
                         ->method('downloadPDF')
-                        ->parameters(['id' => $order->id])
                         ->icon('bs.file-earmark-pdf')
-                        ->class('btn btn-success btn-sm');
+                        ->class('btn btn-success btn-sm')
+                        ->route('platform.facture.preview', [
+                            'id' => $order->id,
+                        ]);
                 }),
 
             TD::make(__('Actions'))
@@ -56,7 +58,8 @@ class OrderLayout extends Table
                     ->list([
 
                         Link::make(__('Edit'))
-                            ->icon('bs.pencil'),
+                            ->icon('bs.pencil')
+                            ->route('platform.Commandes.edit', $order->id),
 
                         Button::make(__('Delete'))
                             ->icon('bs.trash3')

@@ -25,6 +25,8 @@ return new class extends Migration
 
                 $itemTable->foreignId("{$table}_id")->constrained($table)->onDelete('cascade');
 
+                $itemTable->string("no_{$table}");
+
                 $itemTable->foreignId('product_id')->constrained()->onDelete('cascade');
 
                 $itemTable->integer('quantity');
