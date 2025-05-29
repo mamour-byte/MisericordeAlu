@@ -51,11 +51,11 @@ class FabricationScreen extends Screen
 
     public function save(Request $request)
         {
-            $order = $request->get('order');
+            $Fabrication = $request->get('Fabrication');
             $items = $request->get('items');
 
             // Vérification des champs obligatoires
-            if (!isset($order['customer_name'])) {
+            if (!isset($Fabrication['customer_name'])) {
                 Toast::error('Veuillez remplir tous les champs obligatoires.');
                 return back();
             }
@@ -63,11 +63,11 @@ class FabricationScreen extends Screen
             // 1. Enregistrement de la fabrication
             $fabrication = Fabrication::create([
                 'user_id'          => Auth::id(),  // utilisateur connecté
-                'customer_name'    => $order['customer_name'],
-                'customer_phone'   => $order['customer_phone'] ?? null,
-                'customer_email'   => $order['customer_email'] ?? null,
-                'customer_address' => $order['customer_address'] ?? null,
-                'status'           => $order['docs'],  // correspond à 'quote' ou 'invoice'
+                'customer_name'    => $Fabrication['customer_name'],
+                'customer_phone'   => $Fabrication['customer_phone'] ?? null,
+                'customer_email'   => $Fabrication['customer_email'] ?? null,
+                'customer_address' => $Fabrication['customer_address'] ?? null,
+                'status'           => $Fabrication['docs'],  // correspond à 'quote' ou 'invoice'
             ]);
 
             // 2. Enregistrement des items liés

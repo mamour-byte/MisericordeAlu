@@ -9,6 +9,7 @@ use App\Models\FabricationItem;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Fields\Input;
 
 
 class FabricationListLayout extends Table
@@ -34,7 +35,7 @@ class FabricationListLayout extends Table
              
             TD::make('customer_name', 'Nom du client')
                 ->sort()
-                ->filter(TD::FILTER_TEXT)
+                ->filter(Input::make())
                 ->render(function (Fabrication $fabrication) {
                     return $fabrication->customer_name;
                 }),
@@ -74,7 +75,8 @@ class FabricationListLayout extends Table
                     ->list([
 
                         Link::make(__('Edit'))
-                            ->icon('bs.pencil'),
+                            ->icon('bs.pencil')
+                            ->route('platform.Fabrication.edit', $fabrication->id),
 
                         Button::make(__('Delete'))
                             ->icon('bs.trash3')
@@ -89,8 +91,8 @@ class FabricationListLayout extends Table
                         ->method('downloadPDF')
                         ->icon('bs.file-earmark-pdf')
                         ->class('btn btn-success btn-sm')
-                        ->route('platform.facture.preview', [
-                            // 'id' => $fabrication->id,
+                        ->route('preview-quote-pdf', [
+                            'id' => $fabrication->id,
                         ]);
                 }),
         ];

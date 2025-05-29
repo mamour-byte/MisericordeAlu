@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Quote;
 use App\Models\QuoteItem;
+use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 use Orchid\Support\Facades\Toast;
 use Illuminate\Support\Facades\Auth;
@@ -96,6 +97,7 @@ class OrderController extends Controller
                     'unit_price' => $unit_price,
                 ]);
 
+
                 $total += $item_total;
 
                 // On prépare les données pour InvoiceItem ou QuoteItem
@@ -124,6 +126,14 @@ class OrderController extends Controller
                 foreach ($items as $item) {
                     $item['invoice_id'] = $invoice->id;
                     InvoiceItem::create($item);
+
+                    StockMovement::create([
+                    'product_id' => $product->id,
+                    'orders_id'  => $order->id,
+                    'type'       => StockMovement::TYPE_EXIT,
+                    'quantity'   => $quantity,
+                    'notes'      => 'Vente générée par commande #' . $order->id,
+                    ]);
                 }
             } else {
                 $quote = Quote::create([

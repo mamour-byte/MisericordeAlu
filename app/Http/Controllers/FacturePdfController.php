@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\Fabrication;
 use PDF;
 
 class FacturePdfController extends Controller
@@ -59,5 +60,37 @@ class FacturePdfController extends Controller
         $pdf = PDF::loadView('pdf.facturepdf', $pdfData);
         return $pdf->stream('invoices ' . $order->customer_name . ' ' . now()->translatedFormat('F Y') . '.pdf');
 
+    }
+
+
+    public function generateQuote($id){
+        $Fabrication = Fabrication::with(['items',])->findOrFail($id);
+
+        $produitsArray = $Fabrication->items->map(function ($item) {
+            $quantity = $item->quantity ?? 0; 
+            $price_meter = $item->price_meter ?? 0;
+
+            return [
+                'nom' => $item->type ?? 'Produit inconnu',
+                'quantity' => $quantity,
+                'price_meter' => $price_meter,
+                'total_ligne' => $quantity * $price_meter
+            ];
+        });
+
+        $pdfData = [
+            'numero_facture' => $order->facture->no_invoice ?? '-',
+            'date_facture' => $order->facture->created_at ?? now()->format('Y-m-d'),
+            'date_echeance' => $order->facture->date_echeance ?? now()->addDays(30)->format('Y-m-d'),
+
+            'client_nom' => $order->customer_name ?? '',
+            'client_adresse' => $order->customer_address?? '',
+            'client_telephone' => $order->customer_phone ?? '',
+            'client_email' => $order->customer_email ?? '',
+        ];
+
+
+        $pdf = PDF::loadView('pdf.devispdf', $pdfData);
+        return $pdf->stream('quote ' . $Fabrication->customer_name . ' ' . now()->translatedFormat('F Y') . '.pdf');
     }
 }

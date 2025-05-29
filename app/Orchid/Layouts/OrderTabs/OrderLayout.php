@@ -27,15 +27,16 @@ class OrderLayout extends Table
                         return $item->product->name ?? 'N/A';
                     })->implode(', ');
                 }),
-            
-            TD::make('total_amount', 'Montant total')
-                ->render(function (Order $order) {
-                    return number_format($order->total_amount, 2, ',', ' ') . ' F CFA';
-                }),
 
             TD::make('status', 'Statut')
+                ->sort()
                 ->render(function (Order $order) {
-                    return $order->status === 'pending' ? 'En attente' : 'Terminé';
+                    if ($order->status === 'pending') {
+                        return '<span style="color: red; font-weight: bold;">En attente</span>';
+                    } elseif ($order->status === 'approved') {
+                        return '<span style="color: green; font-weight: bold;">Validé</span>';
+                    }
+                    return $order->status;
                 }),
 
             TD::make(__('Actions'))

@@ -12,6 +12,7 @@ use App\Orchid\Screens\DocsScreen;
 use App\Orchid\Screens\StockScreen;
 use App\Orchid\Screens\CommandesScreen;
 use App\Orchid\Screens\FabricationScreen;
+use App\Orchid\Screens\DevisPreviewScreen;
 
 use App\Orchid\Screens\FacturePreviewScreen;
 
@@ -19,6 +20,7 @@ use App\Orchid\Screens\Crud\EditCommandeScreen;
 use App\Orchid\Screens\FournisseursScreen;
 use App\Orchid\Screens\crud\EditProductScreen;
 use App\Orchid\Screens\crud\AddProductScreen;
+use App\Orchid\Screens\crud\FabricationEditScreen;
 use App\Orchid\Screens\crud\AddFournisseursScreen;
 use App\Orchid\Screens\crud\EditFournisseursScreen;
 
@@ -45,6 +47,8 @@ use Tabuna\Breadcrumbs\Trail;
 Route::screen('/main', PlatformScreen::class)
     ->name('platform.main');
 
+
+
 // Platform > Product
 Route::screen('Product', ProductScreen::class)
     ->name('platform.Product')
@@ -67,20 +71,24 @@ Route::screen('Product/edit/{product}', EditProductScreen::class)
         ->push(__('Edit Product'), route('platform.Product.edit', $id)));
 
 
-
 Route::screen('Docs', DocsScreen::class)
     ->name('platform.Docs');
 
+
 // Platform > Commandes
 Route::screen('Commandes', CommandesScreen::class)
-    ->name('platform.Commandes');
+    ->name('platform.Commandes')
+    ->breadcrumbs(fn (Trail $trail ) => $trail
+        ->parent('platform.index')
+        ->push(__('Commandes'), route('platform.Commandes')));
 
 // Platform > Commandes > Edit
 Route::screen('Commandes/edit/{vente}', EditCommandeScreen::class)
-    ->name('platform.Commandes.edit');
-    // ->breadcrumbs(fn (Trail $trail, $id) => $trail
-    //     ->parent('platform.Commandes')
-    //     ->push(__('Edit Vente'), route('platform.Commandes.edit', $id)));
+    ->name('platform.Commandes.edit')
+    ->breadcrumbs(fn (Trail $trail, $id) => $trail
+        ->parent('platform.Commandes')
+        ->push(__('Edit Vente'), route('platform.Commandes.edit', $id)));
+
 
 
 // Platform > Fournisseurs
@@ -112,6 +120,20 @@ Route::screen('Fabrication', FabricationScreen::class)
         ->parent('platform.index')
         ->push(__('Fabrication'), route('platform.Fabrication')));
 
+// Platform > Fabrication > Edit
+Route::screen('Fabrication/edit/{fabrication}', FabricationEditScreen::class)
+    ->name('platform.Fabrication.edit')
+    ->breadcrumbs(fn (Trail $trail, $id) => $trail
+        ->parent('platform.Fabrication')
+        ->push(__('Edit Fabrication'), route('platform.Fabrication.edit', $id))); 
+        
+Route::screen('devis/preview', DevisPreviewScreen::class)
+    ->name('preview-quote-pdf')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push(__('Devis'), route('preview-quote-pdf')));
+
+
 
 // Platform > Facture
 Route::screen('facture/preview', FacturePreviewScreen::class)
@@ -120,9 +142,6 @@ Route::screen('facture/preview', FacturePreviewScreen::class)
         ->parent('platform.index')
         ->push(__('Facture'), route('platform.facture.preview')));
 
-// Platform > Facture > Download
-Route::get('facture/download', [FactureController::class, 'download'])
-    ->name('platform.facture.download');
 
 
 // Platform > Profile
