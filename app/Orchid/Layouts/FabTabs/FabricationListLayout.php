@@ -88,7 +88,7 @@ class FabricationListLayout extends Table
             TD::make('pdf', 'PDF')
                 ->render(function (Fabrication $fabrication) {
                     return Link::make('')
-                        ->method('downloadPDF')
+                        // ->method('downloadQuotePDF')
                         ->icon('bs.file-earmark-pdf')
                         ->class('btn btn-success btn-sm')
                         ->route('preview-quote-pdf', [

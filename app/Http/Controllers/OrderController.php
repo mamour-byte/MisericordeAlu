@@ -17,39 +17,27 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
-
-   private function generateDocumentNumber(string $type): string
+    private function generateDocumentNumber(string $type): string
     {
         $prefix = $type === 'Invoice' ? 'INV-' : 'QT-';
 
-        if ($type === 'Invoice') {
-            $lastNumber = \App\Models\Invoice::whereNotNull('no_invoice')
-                ->orderByDesc('id')
-                ->value('no_invoice');
-        } else {
-            $lastNumber = \App\Models\Quote::whereNotNull('no_quote')
-                ->orderByDesc('id')
-                ->value('no_quote');
-        }
+        $lastNumber = $type === 'Invoice'
+            ? Invoice::whereNotNull('no_invoice')->orderByDesc('id')->value('no_invoice')
+            : Quote::whereNotNull('no_quote')->orderByDesc('id')->value('no_quote');
 
         if ($lastNumber) {
-            // Extraire la partie numérique et incrémenter
             $number = (int) str_replace($prefix, '', $lastNumber);
             $number++;
         } else {
             $number = 1;
         }
 
-        // Retourner le numéro formaté
         return $prefix . str_pad($number, 5, '0', STR_PAD_LEFT);
     }
-
-
 
     public function save(Request $request)
     {
         $data = $request->get('order');
-
         $productIds = $data['products'] ?? [];
         $quantities = $data['quantities'] ?? [];
 
@@ -70,7 +58,7 @@ class OrderController extends Controller
         try {
             $total = 0;
 
-            // Création de la commande (toujours)
+            // Création de la commande
             $order = Order::create([
                 'customer_name'    => $data['customer_name'],
                 'customer_email'   => $data['customer_email'],
@@ -81,7 +69,6 @@ class OrderController extends Controller
                 'user_id'          => Auth::id(),
             ]);
 
-
             $items = [];
 
             foreach ($productIds as $key => $productId) {
@@ -90,17 +77,15 @@ class OrderController extends Controller
                 $unit_price = (float) $product->price;
                 $item_total = $quantity * $unit_price;
 
-                // Création d'un OrderItem
+                // Ajout des items à la commande
                 $order->items()->create([
                     'product_id' => $product->id,
                     'quantity'   => $quantity,
                     'unit_price' => $unit_price,
                 ]);
 
-
                 $total += $item_total;
 
-                // On prépare les données pour InvoiceItem ou QuoteItem
                 $items[] = [
                     'product_id' => $product->id,
                     'quantity'   => $quantity,
@@ -108,10 +93,10 @@ class OrderController extends Controller
                 ];
             }
 
-            // Mise à jour du total
+            // Mise à jour du montant total
             $order->update(['total_amount' => $total]);
 
-            // Création du bon document selon le type
+            // Création du document et liaison avec la commande
             if ($documentType === 'Invoice') {
                 $invoice = Invoice::create([
                     'customer_name'    => $data['customer_name'],
@@ -120,19 +105,24 @@ class OrderController extends Controller
                     'customer_address' => $data['customer_address'],
                     'status'           => 'approved',
                     'total_amount'     => $total,
-                    'no_invoice'       => $documentType === 'Invoice' ? $documentNumber : null,
+                    'no_invoice'       => $documentNumber,
                 ]);
+
+                // Lier l'order à la facture
+                $order->invoice_id = $invoice->id;
+                $order->save();
 
                 foreach ($items as $item) {
                     $item['invoice_id'] = $invoice->id;
                     InvoiceItem::create($item);
 
+                    // Mouvement de stock
                     StockMovement::create([
-                    'product_id' => $product->id,
-                    'orders_id'  => $order->id,
-                    'type'       => StockMovement::TYPE_EXIT,
-                    'quantity'   => $quantity,
-                    'notes'      => 'Vente générée par commande #' . $order->id,
+                        'product_id' => $item['product_id'],
+                        'orders_id'  => $order->id,
+                        'type'       => StockMovement::TYPE_EXIT,
+                        'quantity'   => $item['quantity'],
+                        'notes'      => 'Vente générée par commande #' . $order->id,
                     ]);
                 }
             } else {
@@ -143,8 +133,12 @@ class OrderController extends Controller
                     'customer_address' => $data['customer_address'],
                     'status'           => 'pending',
                     'total_amount'     => $total,
-                    'no_quote'         => $documentType === 'Quote'   ? $documentNumber : null,
+                    'no_quote'         => $documentNumber,
                 ]);
+
+                // Lier l'order au devis
+                $order->quote_id = $quote->id;
+                $order->save();
 
                 foreach ($items as $item) {
                     $item['quote_id'] = $quote->id;

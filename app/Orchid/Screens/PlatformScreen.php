@@ -37,7 +37,6 @@ class PlatformScreen extends Screen
                     'Meilleur Vente'  => $chart->MeilleurVenteMois(),
                     'Meilleur Client' => $chart->MeilleurClientMois(),
                     'Ventes du Jour'  => $chart->VentesJour(),
-                    'Total Semaine'   => $chart->TotalSemaine(),
                     'Total Mois'      => $chart->TotalMois(),
                 ],
                 'ProductData' => $ventesParProduit,
@@ -92,7 +91,6 @@ class PlatformScreen extends Screen
                     'Meilleur Vente'  => 'metrics.Meilleur Vente',
                     'Meilleur Client' => 'metrics.Meilleur Client',
                     'Ventes du Jour'  => 'metrics.Ventes du Jour',
-                    'Total Semaine'   => 'metrics.Total Semaine',
                     'Total Mois'      => 'metrics.Total Mois',
                 ]),
             ]),
@@ -104,9 +102,7 @@ class PlatformScreen extends Screen
 
             
             layout::columns([
-
                 MeilleursVendeursLayout::class,
-
                 UserSellingChart::class,
             ]),
 
