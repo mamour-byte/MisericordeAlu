@@ -8,6 +8,7 @@ class StockMovement extends Model
 {
     protected $fillable = [
         'product_id',
+        'shop_id',
         'orders_id',
         'type',
         'quantity',
@@ -16,6 +17,11 @@ class StockMovement extends Model
 
     const TYPE_ENTRY = 'entry';
     const TYPE_EXIT = 'exit';
+
+    public function shop()
+    {
+        return $this->belongsTo(Shop::class);
+    }
 
     public function product()
     {

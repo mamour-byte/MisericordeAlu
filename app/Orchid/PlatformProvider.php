@@ -39,10 +39,10 @@ class PlatformProvider extends OrchidServiceProvider
                 ->title('Navigation')
                 ->route(config('platform.index')),
 
-            Menu::make(__('Docs'))
-                ->icon('bs.file-earmark-text')
+            Menu::make(__('Boutiques'))
+                ->icon('bs.shop-window')
                 ->title('Gestion des factures & Devis')
-                ->route('platform.Docs'),
+                ->route('platform.Shop'),
 
             Menu::make(__('Commandes'))
                 ->icon('bs.cart')

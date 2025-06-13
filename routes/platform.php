@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\ProductScreen;
-use App\Orchid\Screens\DocsScreen;
+use App\Orchid\Screens\ShopScreen;
 use App\Orchid\Screens\StockScreen;
 use App\Orchid\Screens\CommandesScreen;
 use App\Orchid\Screens\FabricationScreen;
@@ -23,6 +23,8 @@ use App\Orchid\Screens\crud\AddProductScreen;
 use App\Orchid\Screens\crud\FabricationEditScreen;
 use App\Orchid\Screens\crud\AddFournisseursScreen;
 use App\Orchid\Screens\crud\EditFournisseursScreen;
+use App\Orchid\Screens\crud\AddShopScreen;
+use App\Orchid\Screens\crud\EditShopScreen;
 
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
@@ -71,8 +73,18 @@ Route::screen('Product/edit/{product}', EditProductScreen::class)
         ->push(__('Edit Product'), route('platform.Product.edit', $id)));
 
 
-Route::screen('Docs', DocsScreen::class)
-    ->name('platform.Docs');
+// Platform > Shop 
+Route::screen('Shop' , ShopScreen::Class)
+    ->name('platform.Shop');
+
+// Platform > Shop > Create 
+Route::screen('shop/create', AddShopScreen::class)
+    ->name('platform.shop.create');
+
+// Platform > Shop > Edit
+Route::screen('shop/edit/{id}', EditShopScreen::class)
+->name('platform.shop.edit');
+
 
 
 // Platform > Commandes

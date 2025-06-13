@@ -3,18 +3,27 @@
 namespace App\Orchid\Screens;
 
 use Orchid\Screen\Screen;
+use App\Models\Shop;
+use Orchid\Screen\Layout;
+use Orchid\Screen\Actions\Link;
+use App\Orchid\Layouts\ShopListLayout;
 
-class DocsScreen extends Screen
+class ShopScreen extends Screen
 {
     /**
      * Fetch data to be displayed on the screen.
      *
      * @return array
      */
+    
+
     public function query(): iterable
     {
-        return [];
+        return [
+            'shops' => Shop::with('manager')->latest()->paginate(),
+        ];
     }
+
 
     /**
      * The name of the screen displayed in the header.
@@ -23,7 +32,7 @@ class DocsScreen extends Screen
      */
     public function name(): ?string
     {
-        return 'Factures Devis Commandes';
+        return 'Boutiques';
     }
 
     /**
@@ -33,7 +42,11 @@ class DocsScreen extends Screen
      */
     public function commandBar(): iterable
     {
-        return [];
+        return [
+            Link::make('Créer une boutique')
+                ->icon('plus')
+                ->route('platform.shop.create'),
+        ];
     }
 
     /**
@@ -42,7 +55,9 @@ class DocsScreen extends Screen
      * @return \Orchid\Screen\Layout[]|string[]
      */
     public function layout(): iterable
-    {
-        return [];
-    }
+        {
+            return [
+                ShopListLayout::class , 
+            ];
+        }
 }

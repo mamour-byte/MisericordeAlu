@@ -11,6 +11,7 @@ return new class extends Migration
         foreach (['quote', 'order', 'invoice'] as $table) {
             Schema::create($table, function (Blueprint $table) {
                 $table->id();
+                $table->foreignId('shop_id')->constrained()->onDelete('cascade');
                 $table->string('customer_name');
                 $table->string('customer_email');
                 $table->string('customer_phone')->nullable();

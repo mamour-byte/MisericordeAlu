@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('shop_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->foreignId('orders_id')->nullable()->constrained('orders')->onDelete('set null');
             $table->enum('type', ['entry', 'exit']);
