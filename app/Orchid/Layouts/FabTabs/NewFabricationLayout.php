@@ -66,8 +66,8 @@ class NewFabricationLayout extends Rows
                     ])
                     ->fields([
                         'type'         => Select::make()->options([
-                            'door'   => 'Porte',
-                            'window' => 'Fenêtre',
+                            'Porte'   => 'Porte',
+                            'Fenêtre' => 'Fenêtre',
                         ])->required(),
 
                         'width'        => Input::make()->type('number')->min(1)->required(),

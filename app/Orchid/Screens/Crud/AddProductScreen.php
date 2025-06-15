@@ -99,13 +99,15 @@ class AddProductScreen extends Screen
         $data = $request->get('product');
 
         $product = Product::create($data);
+        $shop = auth()->user()->shop;
 
         StockMovement::create([
             'product_id' => $product->id,
-            'orders_id'  => null, 
+            'order_id'  => null, 
             'type'       => StockMovement::TYPE_ENTRY,
             'quantity'   => $product->stock_quantity,
             'notes'      => 'Ajout initial du produit',
+            'shop_id'   => $shop->id, 
         ]);
 
         Alert::success('Produit ajouté avec succès.');

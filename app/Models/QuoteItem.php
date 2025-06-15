@@ -11,6 +11,7 @@ class QuoteItem extends Model
         'product_id',
         'quantity',
         'unit_price',
+        'no_quote'
     ];
 
     public function quote()

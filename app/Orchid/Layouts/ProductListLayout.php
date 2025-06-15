@@ -9,6 +9,7 @@ use App\Models\User;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Button;
+use Illuminate\Support\Facades\Auth;
 
 class ProductListLayout extends Table
 {
@@ -32,10 +33,26 @@ class ProductListLayout extends Table
                 ->render(fn ($product) => optional($product->subcategory)->name ?? '—')
                 ->sort(),
 
+
             TD::make('stockMovements', 'Ventes / Stock')
                 ->render(function (Product $product) {
-                    $totalEntree = $product->stockMovements->where('type', 'entry')->sum('quantity');
-                    $totalSortie = $product->stockMovements->where('type', 'exit')->sum('quantity');
+                    $user = Auth::user();
+                    $shop = $user->shop;
+
+                    if (!$shop) {
+                        return '<div class="text-muted">Pas de boutique liée</div>';
+                    }
+
+                    $entries = $product->stockMovements
+                        ->where('shop_id', $shop->id)
+                        ->where('type', 'entry');
+
+                    $exits = $product->stockMovements
+                        ->where('shop_id', $shop->id)
+                        ->where('type', 'exit');
+
+                    $totalEntree = $entries->sum('quantity');
+                    $totalSortie = $exits->sum('quantity');
 
                     if ($totalEntree === 0) {
                         return '<div class="text-muted">Aucun stock enregistré</div>';
@@ -43,12 +60,11 @@ class ProductListLayout extends Table
 
                     $pourcentage = round(($totalSortie / $totalEntree) * 100);
 
-                    // Détermination de la couleur
-                    $couleur = 'bg-success'; // vert
+                    $couleur = 'bg-success';
                     if ($pourcentage >= 95) {
-                        $couleur = 'bg-danger'; // rouge
+                        $couleur = 'bg-danger';
                     } elseif ($pourcentage >= 80) {
-                        $couleur = 'bg-warning'; // orange
+                        $couleur = 'bg-warning';
                     }
 
                     $bar = <<<HTML

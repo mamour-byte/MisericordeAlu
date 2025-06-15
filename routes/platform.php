@@ -75,15 +75,14 @@ Route::screen('Product/edit/{product}', EditProductScreen::class)
 
 // Platform > Shop 
 Route::screen('Shop' , ShopScreen::Class)
-    ->name('platform.Shop');
+    ->name('platform.shop');
 
 // Platform > Shop > Create 
 Route::screen('shop/create', AddShopScreen::class)
     ->name('platform.shop.create');
 
 // Platform > Shop > Edit
-Route::screen('shop/edit/{id}', EditShopScreen::class)
-->name('platform.shop.edit');
+Route::screen('shop/{shop}/edit', EditShopScreen::class)->name('platform.shop.edit');
 
 
 
@@ -95,7 +94,7 @@ Route::screen('Commandes', CommandesScreen::class)
         ->push(__('Commandes'), route('platform.Commandes')));
 
 // Platform > Commandes > Edit
-Route::screen('Commandes/edit/{vente}', EditCommandeScreen::class)
+Route::screen('Commandes/{order}/edit', EditCommandeScreen::class)
     ->name('platform.Commandes.edit')
     ->breadcrumbs(fn (Trail $trail, $id) => $trail
         ->parent('platform.Commandes')
@@ -133,7 +132,7 @@ Route::screen('Fabrication', FabricationScreen::class)
         ->push(__('Fabrication'), route('platform.Fabrication')));
 
 // Platform > Fabrication > Edit
-Route::screen('Fabrication/edit/{fabrication}', FabricationEditScreen::class)
+Route::screen('Fabrication/{fabrication}/edit', FabricationEditScreen::class)
     ->name('platform.Fabrication.edit')
     ->breadcrumbs(fn (Trail $trail, $id) => $trail
         ->parent('platform.Fabrication')

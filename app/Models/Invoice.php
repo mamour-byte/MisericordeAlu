@@ -13,6 +13,7 @@ class Invoice extends Model
         'customer_address',
         'status',
         'total_amount',
+        'shop_id',
 
     ];
     public function items()

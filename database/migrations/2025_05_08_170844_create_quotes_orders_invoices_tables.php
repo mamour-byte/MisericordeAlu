@@ -8,10 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        foreach (['quote', 'order', 'invoice'] as $table) {
+        foreach (['quotes', 'orders', 'invoices'] as $table) {
             Schema::create($table, function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('shop_id')->constrained()->onDelete('cascade');
+                $table->foreignId("user_id")->nullable()->constrained('users')->onDelete('set null');
                 $table->string('customer_name');
                 $table->string('customer_email');
                 $table->string('customer_phone')->nullable();
@@ -23,13 +24,9 @@ return new class extends Migration
 
             Schema::create("{$table}_items", function (Blueprint $itemTable) use ($table) {
                 $itemTable->id();
-
                 $itemTable->foreignId("{$table}_id")->constrained($table)->onDelete('cascade');
-
                 $itemTable->string("no_{$table}");
-
                 $itemTable->foreignId('product_id')->constrained()->onDelete('cascade');
-
                 $itemTable->integer('quantity');
                 $itemTable->decimal('unit_price', 10, 2);
                 $itemTable->timestamps();

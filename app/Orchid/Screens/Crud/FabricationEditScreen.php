@@ -20,14 +20,13 @@ class FabricationEditScreen extends Screen
      *
      * @return array
      */
-    public function query(Fabrication $Fabrication): iterable
+    public function query(Fabrication $fabrication): iterable
         {
-            $Fabrication->load('items');
-            // dd($Fabrication);
+            $fabrication->load('items');
 
             return [
-                'Fabrication' => $Fabrication,
-                'items' => $Fabrication->items->map(function ($item) {
+                'Fabrication' => $fabrication,
+                'items' => $fabrication->items->map(function ($item) {
                     return [
                         'type'        => $item->type,
                         'width'       => $item->width,
@@ -62,7 +61,6 @@ class FabricationEditScreen extends Screen
             Button::make('Modifier')
                 ->icon('update')
                 ->method('updateFab'),
-                // ->class('btn btn-primary'),
         ];
     }
 
@@ -135,9 +133,6 @@ class FabricationEditScreen extends Screen
                     ->empty('Sélectionnez un statut')
                     ->required(),
 
-                Button::make('Enregistrer la commande')
-                    ->method('save')
-                    ->class('btn btn-primary'),
             ]),
         ];
     }
@@ -148,7 +143,8 @@ class FabricationEditScreen extends Screen
      * @param Fabrication $Fabrication
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateFab(Fabrication $Fabrication)
+
+    public function updateFab(Fabrication $fabrication)
     {
         $data = request()->get('Fabrication');
 
@@ -160,7 +156,7 @@ class FabricationEditScreen extends Screen
         ]);
 
         // Mise à jour de la fabrication
-        $Fabrication->update([
+        $fabrication->update([
             'customer_name'    => $data['customer_name'],
             'customer_phone'   => $data['customer_phone'],
             'customer_email'   => $data['customer_email'] ?? null,
@@ -171,7 +167,7 @@ class FabricationEditScreen extends Screen
         // Mise à jour des items
         foreach (request()->get('items', []) as $itemData) {
             FabricationItem::updateOrCreate(
-                ['fabrication_id' => $Fabrication->id, 'type' => $itemData['type']],
+                ['fabrication_id' => $fabrication->id, 'type' => $itemData['type']],
                 [
                     'width'       => $itemData['width'],
                     'height'      => $itemData['height'],
@@ -182,7 +178,7 @@ class FabricationEditScreen extends Screen
             );
         }
 
-        return redirect()->route('platform.Fabrication', $Fabrication->id)
-                         ->with('success', 'La fabrication a été mise à jour avec succès.');
+        return redirect()->route('platform.Fabrication')
+                        ->with('success', 'La fabrication a été mise à jour avec succès.');
     }
 }

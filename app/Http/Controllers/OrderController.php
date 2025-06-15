@@ -22,8 +22,8 @@ class OrderController extends Controller
         $prefix = $type === 'Invoice' ? 'INV-' : 'QT-';
 
         $lastNumber = $type === 'Invoice'
-            ? Invoice::whereNotNull('no_invoice')->orderByDesc('id')->value('no_invoice')
-            : Quote::whereNotNull('no_quote')->orderByDesc('id')->value('no_quote');
+            ? InvoiceItem::whereNotNull('no_invoice')->orderByDesc('id')->value('no_invoice')
+            : QuoteItem::whereNotNull('no_quote')->orderByDesc('id')->value('no_quote');
 
         if ($lastNumber) {
             $number = (int) str_replace($prefix, '', $lastNumber);
@@ -35,11 +35,32 @@ class OrderController extends Controller
         return $prefix . str_pad($number, 5, '0', STR_PAD_LEFT);
     }
 
+    private function generateOrderNumber(): string
+    {
+        $prefix = 'ORD-';
+        $lastNumber = OrderItem::whereNotNull('no_order')->orderByDesc('id')->value('no_order');
+        if ($lastNumber) {
+            $number = (int) str_replace($prefix, '', $lastNumber);
+            $number++;
+        } else {
+            $number = 1;
+        }
+        return $prefix . str_pad($number, 5, '0', STR_PAD_LEFT);
+    }
+
     public function save(Request $request)
     {
         $data = $request->get('order');
         $productIds = $data['products'] ?? [];
         $quantities = $data['quantities'] ?? [];
+
+        $user = Auth::user();
+        $shop = $user->shop;
+
+        if (!$shop) {
+            Toast::error("Aucune boutique n'est assignée à ce gérant.");
+            return redirect()->back();
+        }
 
         if (is_string($quantities)) {
             $quantities = explode(',', $quantities);
@@ -47,6 +68,7 @@ class OrderController extends Controller
 
         $documentType = $data['Docs'] ?? 'Invoice';
         $documentNumber = $this->generateDocumentNumber($documentType);
+        $orderNumber = $this->generateOrderNumber();
 
         if (count($productIds) !== count($quantities)) {
             Toast::error('Le nombre de produits ne correspond pas aux quantités.');
@@ -67,6 +89,7 @@ class OrderController extends Controller
                 'status'           => $documentType === 'Invoice' ? 'approved' : 'pending',
                 'total_amount'     => 0,
                 'user_id'          => Auth::id(),
+                'shop_id'          => $shop->id,
             ]);
 
             $items = [];
@@ -77,11 +100,12 @@ class OrderController extends Controller
                 $unit_price = (float) $product->price;
                 $item_total = $quantity * $unit_price;
 
-                // Ajout des items à la commande
+                // Ajout des items à la commande avec no_order
                 $order->items()->create([
                     'product_id' => $product->id,
                     'quantity'   => $quantity,
                     'unit_price' => $unit_price,
+                    'no_order'   => $orderNumber,
                 ]);
 
                 $total += $item_total;
@@ -90,6 +114,7 @@ class OrderController extends Controller
                     'product_id' => $product->id,
                     'quantity'   => $quantity,
                     'unit_price' => $unit_price,
+                    'no_order'   => $orderNumber,
                 ];
             }
 
@@ -105,7 +130,8 @@ class OrderController extends Controller
                     'customer_address' => $data['customer_address'],
                     'status'           => 'approved',
                     'total_amount'     => $total,
-                    'no_invoice'       => $documentNumber,
+                    'user_id'          => Auth::id(),
+                    'shop_id'          => $shop->id,
                 ]);
 
                 // Lier l'order à la facture
@@ -114,12 +140,14 @@ class OrderController extends Controller
 
                 foreach ($items as $item) {
                     $item['invoice_id'] = $invoice->id;
+                    $item['no_invoice'] = $documentNumber;
                     InvoiceItem::create($item);
 
                     // Mouvement de stock
                     StockMovement::create([
                         'product_id' => $item['product_id'],
-                        'orders_id'  => $order->id,
+                        'order_id'   => $order->id,
+                        'shop_id'    => $shop->id,
                         'type'       => StockMovement::TYPE_EXIT,
                         'quantity'   => $item['quantity'],
                         'notes'      => 'Vente générée par commande #' . $order->id,
@@ -133,7 +161,8 @@ class OrderController extends Controller
                     'customer_address' => $data['customer_address'],
                     'status'           => 'pending',
                     'total_amount'     => $total,
-                    'no_quote'         => $documentNumber,
+                    'user_id'          => Auth::id(),
+                    'shop_id'          => $shop->id,
                 ]);
 
                 // Lier l'order au devis
@@ -142,6 +171,7 @@ class OrderController extends Controller
 
                 foreach ($items as $item) {
                     $item['quote_id'] = $quote->id;
+                    $item['no_quote'] = $documentNumber;
                     QuoteItem::create($item);
                 }
             }

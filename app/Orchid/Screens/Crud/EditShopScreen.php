@@ -2,47 +2,89 @@
 
 namespace App\Orchid\Screens\Crud;
 
+use App\Models\Shop;
+use App\Models\User;
 use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Layout;
+use Orchid\Support\Facades\Alert;
+use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Relation;
+use Illuminate\Http\Request;
+use Orchid\Screen\Actions\Button;
 
 class EditShopScreen extends Screen
 {
+    public $shop;
+
     /**
-     * Fetch data to be displayed on the screen.
-     *
-     * @return array
+     * Query data.
      */
-    public function query(): iterable
+    public function query(Shop $shop): iterable
     {
-        return [];
+        $this->shop = $shop;
+
+        return [
+            'shop' => $shop
+        ];
     }
 
     /**
-     * The name of the screen displayed in the header.
-     *
-     * @return string|null
+     * Screen name.
      */
     public function name(): ?string
     {
-        return 'EditShopScreen';
+        return 'Modifier la Boutique';
     }
 
     /**
-     * The screen's action buttons.
-     *
-     * @return \Orchid\Screen\Action[]
+     * Command bar.
      */
     public function commandBar(): iterable
     {
-        return [];
+        return [
+            Button::make('Enregistrer')
+                ->icon('check')
+                ->method('save'),
+        ];
     }
 
     /**
-     * The screen's layout elements.
-     *
-     * @return \Orchid\Screen\Layout[]|string[]
+     * Layouts.
      */
     public function layout(): iterable
     {
-        return [];
+        return [
+            Layout::rows([
+                Input::make('shop.name')
+                    ->title('Nom de la boutique')
+                    ->required(),
+
+                Input::make('shop.location')
+                    ->title('Adresse'),
+
+                Relation::make('shop.manager_id')
+                    ->fromModel(User::class, 'name')
+                    ->title('Gérant')
+                    ->required(),
+            ]),
+        ];
+    }
+
+    /**
+     * Save handler.
+     */
+    public function save(Request $request, Shop $shop)
+    {
+        $validated = $request->validate([
+            'shop.name' => 'required|string|max:255',
+            'shop.location' => 'nullable|string|max:255',
+            'shop.manager_id' => 'required|exists:users,id',
+        ]);
+
+        $shop->fill($validated['shop'])->save();
+
+        Alert::info('Boutique mise à jour avec succès.');
+
+        return redirect()->route('platform.shop'); // adapte à ton nom de route
     }
 }

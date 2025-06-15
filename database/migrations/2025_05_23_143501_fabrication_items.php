@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->integer('width');
             $table->integer('height');
             $table->integer('depth')->nullable();
-            $table->interger('price_meter')->default(0);
+            $table->integer('price_meter')->default(0);
             $table->integer('quantity')->default(1);
             $table->text('note')->nullable();
             $table->timestamps();

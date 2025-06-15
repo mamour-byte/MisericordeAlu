@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('shop_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->foreignId('orders_id')->nullable()->constrained('orders')->onDelete('set null');
+            $table->foreignId('order_id')->nullable()->constrained('orders')->onDelete('set null');
             $table->enum('type', ['entry', 'exit']);
             $table->integer('quantity');
             $table->text('notes')->nullable();

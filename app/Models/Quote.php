@@ -13,7 +13,7 @@ class Quote extends Model
         'customer_address',
         'status',
         'total_amount',
-        'no_quote',
+        'shop_id',
     ];
 
     public function items()

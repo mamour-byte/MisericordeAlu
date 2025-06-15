@@ -66,4 +66,11 @@ class User extends Authenticatable
         'updated_at',
         'created_at',
     ];
+
+    public function shop()
+        {
+            return $this->hasOne(Shop::class, 'manager_id');
+        }
+
+
 }

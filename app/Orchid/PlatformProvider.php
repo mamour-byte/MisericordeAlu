@@ -42,7 +42,7 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make(__('Boutiques'))
                 ->icon('bs.shop-window')
                 ->title('Gestion des factures & Devis')
-                ->route('platform.Shop'),
+                ->route('platform.shop'),
 
             Menu::make(__('Commandes'))
                 ->icon('bs.cart')

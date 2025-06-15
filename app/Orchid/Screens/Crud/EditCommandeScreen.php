@@ -31,6 +31,7 @@ class EditCommandeScreen extends Screen
         {
             $order->load(['items.product']);
             $this->order = $order;
+            
 
             return [
                 'order' => $order
