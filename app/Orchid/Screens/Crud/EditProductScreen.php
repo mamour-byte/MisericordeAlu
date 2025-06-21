@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Orchid\Screens\crud;
+namespace App\Orchid\Screens\Crud;
 
 use App\Models\Product;
-use App\Models\Subcategory;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Layout;
@@ -84,7 +84,7 @@ class EditProductScreen extends Screen
 
                 Relation::make('product.subcategory_id')
                     ->title('Sous-catégorie')
-                    ->fromModel(Subcategory::class, 'name')
+                    ->fromModel(Category::class, 'name')
                     ->required(),
             ]),
         ];

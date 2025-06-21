@@ -68,21 +68,25 @@ class FacturePdfController extends Controller
             $fabrication = Fabrication::with(['items'])->findOrFail($id);
 
             // Génération des lignes de produit
-            $produitsArray = $fabrication->items->map(function ($item) {
+                $produitsArray = $fabrication->items->map(function ($item) {
                 $quantity = $item->quantity ?? 0; 
                 $price_meter = $item->price_meter ?? 0;
+                $width = $item->width ?? 0;
+                $height = $item->height ?? 0;
 
                 return [
+                    'largeur' => $width,
+                    'longueur' => $height,
                     'nom' => $item->type ?? 'Produit inconnu',
                     'quantity' => $quantity,
                     'price_meter' => $price_meter,
-                    'total_ligne' => $quantity * $price_meter
+                    'total_ligne' => $quantity * $price_meter * $width * $height ,
                 ];
             });
 
             // Calcul total
             $subtotal = $fabrication->items->sum(function ($item) {
-                return $item->quantity * ($item->price_meter ?? 0);
+                return $item->quantity * ($item->price_meter ?? 0) * ($item->width ?? 0) * ($item->height ?? 0);
             });
 
             $taxRate = 18;
@@ -95,7 +99,7 @@ class FacturePdfController extends Controller
 
             // Préparation des données pour le PDF
             $pdfData = [
-                'numero_facture' => $fabrication->no_invoice ?? '-',
+                'numero_facture' => $fabrication->no_qoute ?? '-',
                 'date_facture' => $fabrication->created_at->format('Y-m-d') ?? now()->format('Y-m-d'),
                 'date_echeance' => $fabrication->date_echeance ?? now()->addDays(30)->format('Y-m-d'),
 

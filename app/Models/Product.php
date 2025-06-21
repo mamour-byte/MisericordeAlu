@@ -12,12 +12,13 @@ class Product extends Model
         'price', 
         'stock_quantity', 
         'stock_min', 
-        'subcategory_id',
+        'categorie_id',
+        'shop_id',
     ];
 
-    public function subcategory()
+    public function category()
     {
-        return $this->belongsTo(Subcategory::class, 'subcategory_id');
+        return $this->belongsTo(Category::class, 'subcategory_id');
     }
 
     public function stockMovements()
@@ -29,4 +30,10 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+    
+    public function scopeByShop($query, $shop_id)
+    {
+        return $query->where('shop_id', $shop_id);
+    }
+
 }

@@ -8,6 +8,7 @@ use App\Orchid\Layouts\ProductListLayout;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\DropDown;
+use Orchid\Support\Facades\Toast;
 
 
 class ProductScreen extends Screen
@@ -19,8 +20,18 @@ class ProductScreen extends Screen
      */
     public function query(): iterable
         {
+            $shop = auth()->user()->shop;
+            $user = auth()->user();
+            if (!$user->shop) {
+                Toast::error("Aucun magasin ne vous a été attribué. Veuillez contacter l'administrateur.");
+                return [
+                    'Commandes' => collect(), 
+                ];
+            }
             return [
-                'products' => Product::with('stockMovements')->paginate(15),
+                'products' => Product::with('stockMovements')
+                    ->where('shop_id', $shop->id)
+                    ->paginate(15),
             ];
         }
 

@@ -106,6 +106,8 @@
             <tr>
                 <th>Produit</th>
                 <th>Quantité</th>
+                <th>Longeur</th>
+                <th>Largeur</th>
                 <th>Prix de M² (F CFA)</th>
                 <th>Total ligne (F CFA)</th>
             </tr>
@@ -115,6 +117,8 @@
                 <tr>
                     <td>{{ $produit['nom'] }}</td>
                     <td>{{ $produit['quantity'] }}</td>
+                    <td>{{ $produit['longueur'] }}</td>
+                    <td>{{ $produit['largeur'] }}</td>
                     <td>{{ number_format($produit['price_meter'], 2, ',', ' ') }}</td>
                     <td>{{ number_format($produit['total_ligne'], 2, ',', ' ') }}</td>
                 </tr>

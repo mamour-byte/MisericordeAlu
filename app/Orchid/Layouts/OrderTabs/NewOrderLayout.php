@@ -13,15 +13,25 @@ use Orchid\Screen\Fields\Relation;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
+use Orchid\Screen\Fields\Label;
+use Orchid\Support\Facades\Alert;
 
 
 class NewOrderLayout extends Rows
 {
     
     protected function fields(): array 
-    {
+    {   
+        $user = auth()->user();
+        if (!$user->shop) {
+            return [
+                Label::make()
+                    ->value('Aucun magasin ne vous a été attribué. Veuillez contacter l\'administrateur.')
+                    ->title('Erreur')
+            ];
+        }
         return [
-
+            
                 Group::make([
                     Input::make('order.customer_name')
                         ->title('Nom du client')
@@ -42,12 +52,14 @@ class NewOrderLayout extends Rows
                 ]),
 
                 Group::make([
-                    Relation::make('order.products')  
+                    Relation::make('order.products')
                         ->title('Produits')
-                        ->fromModel(Product::class, 'name') 
+                        ->fromModel(Product::class, 'name')
+                        ->applyScope('byShop', auth()->user()->shop?->id)
+                        ->searchColumns('name') 
+                        ->displayAppend('name') 
                         ->multiple()
-                        ->required()
-                        ->help('Sélectionnez les produits (Ctrl+clic pour multiple)'),
+                        ->required(),
 
                     Input::make('order.quantities') 
                         ->title('Quantités')

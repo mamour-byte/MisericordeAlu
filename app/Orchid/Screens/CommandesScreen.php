@@ -14,6 +14,7 @@ use App\Http\Controllers\OrderController;
 use App\Orchid\Layouts\OrderTabs\OrderLayout;
 use App\Orchid\Layouts\OrderTabs\NewOrderLayout;
 use App\Orchid\Filters\OrderFilterLayout;
+use Orchid\Support\Facades\Toast;
 
 
 class CommandesScreen extends Screen
@@ -29,12 +30,24 @@ class CommandesScreen extends Screen
      * @return array
      */
     public function query(): iterable
-    {
-        
-        return [
-            'Commandes' => Order::with(['items.product'])->latest()->paginate(10),
-        ];
-    }
+        {
+            $user = auth()->user();
+
+            // Supposons que la relation s'appelle 'shop'
+            if (!$user->shop) {
+                Toast::error("Aucun magasin ne vous a été attribué. Veuillez contacter l'administrateur.");
+                return [
+                    'Commandes' => collect(), 
+                ];
+            }
+
+            return [
+                'Commandes' => Order::with(['items.product'])
+                    ->where('user_id', $user->id)
+                    ->latest()
+                    ->paginate(10),
+            ];
+        }
 
     /**
      * Button commands.

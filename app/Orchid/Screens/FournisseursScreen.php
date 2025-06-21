@@ -44,9 +44,15 @@ class FournisseursScreen extends Screen
     public function commandBar(): iterable
     {
         return [
-            Link::make(__('Add'))
+            Link::make(__('Ajouter un fournisseur'))
                 ->icon('bs.plus-circle')
                 ->route('platform.Fournisseurs.addFournisseurs'),
+
+            // Link::make(__('Bon de commande'))
+            //     ->icon('bs.plus-circle'),
+            //     ->route('platform.Fournisseurs.addBonCommande'),
+
+
         ];
     }
 

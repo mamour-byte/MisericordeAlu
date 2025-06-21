@@ -51,8 +51,11 @@ class MeilleursVendeursLayout extends Table
                     HTML;
                 }),
 
-            TD::make('name', 'Nom du vendeur'),
+            TD::make('name', 'Boutique')
+                ->render(fn($user) => $user->shop->name ?? 'Aucune'),
+
             TD::make('total_commandes', 'Commandes'),
+
             TD::make('total_ventes', 'Montant total')->render(fn($user) =>
                 number_format($user->total_ventes, 0, ',', ' ') . ' F CFA'),
         ];

@@ -12,13 +12,19 @@ use Orchid\Screen\Actions\Button;
 use Illuminate\Support\Facades\Auth;
 
 class ProductListLayout extends Table
-{
+    {
+    /**
+     * Message personnalisé lorsqu'il n'y a aucun produit.
+     */
+    protected $empty = 'Aucun produit enregistré pour le moment.';
+    
     protected $target = 'products';
 
     protected function columns(): iterable
     {
-        return [
 
+        return [
+            
             TD::make('name', 'Nom')
                 ->render(fn ($product) => $product->name),
 
@@ -29,8 +35,8 @@ class ProductListLayout extends Table
                 ->render(fn ($product) => number_format($product->price, 2) . ' FCFA')
                 ->sort(),
 
-            TD::make('subcategory.name', 'Sous-catégorie')
-                ->render(fn ($product) => optional($product->subcategory)->name ?? '—')
+            TD::make('categories.name', 'Catégorie')
+                ->render(fn ($product) => optional($product->categorie)->name ?? '—')
                 ->sort(),
 
 

@@ -55,11 +55,11 @@ class ChartController extends Controller
         ];
     }
 
-    public function TotalSemaine()
+    public function TotalJour()
     {
         $total = order::whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek(),
+                Carbon::now()->startOfDay(),
+                Carbon::now()->endOfDay(),
             ])
             ->where('status', 'approved')
             ->sum('total_amount');
@@ -91,7 +91,7 @@ class ChartController extends Controller
             ->whereYear('order_items.created_at', Carbon::now()->year)
             ->with('product')
             ->groupBy('order_items.product_id')
-            ->take(10)
+            ->take(7) // Limiter à 7 produits   
             ->get();
 
         return [[
@@ -100,50 +100,58 @@ class ChartController extends Controller
         ]];
     }
 
-    public function VentesSemaine(): array
-    {
-        $ventesParJour = orderItem::select(
-                DB::raw('DATE(order_items.created_at) as date'),
-                DB::raw('SUM(order_items.quantity) as total_ventes')
-            )
-            ->join('orders', 'orders.id', '=', 'order_items.order_id')
-            ->where('orders.status', 'approved')
-            ->whereBetween('order_items.created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek(),
-            ])
-            ->groupBy(DB::raw('DATE(order_items.created_at)'))
-            ->orderBy('date')
-            ->get();
 
-        $joursSemaine = collect(Carbon::now()->startOfWeek()->daysUntil(Carbon::now()->endOfWeek()))
-            ->mapWithKeys(fn($date) => [$date->format('Y-m-d') => 0]);
+        public function VentesSemaine(): array
+        {
+            $ventesParJour = order::select(
+                    DB::raw('DATE(created_at) as date'),
+                    DB::raw('SUM(total_amount) as chiffre_affaire')
+                )
+                ->where('status', 'approved')
+                ->whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek(),
+                ])
+                ->groupBy(DB::raw('DATE(created_at)'))
+                ->orderByDesc('chiffre_affaire') // Ordonner par chiffre d'affaires décroissant
+                ->get();
 
-        foreach ($ventesParJour as $vente) {
-            $date = $vente->date;
-            $joursSemaine[$date] = $vente->total_ventes;
+            $joursSemaine = collect(Carbon::now()->startOfWeek()->daysUntil(Carbon::now()->endOfWeek()))
+                ->mapWithKeys(fn($date) => [$date->format('Y-m-d') => 0]);
+
+            foreach ($ventesParJour as $vente) {
+                $date = $vente->date;
+                $joursSemaine[$date] = $vente->chiffre_affaire;
+            }
+
+            $labels = $joursSemaine->keys()->map(fn($date) => Carbon::parse($date)->locale('fr')->isoFormat('dddd'))->toArray();
+            $values = $joursSemaine->values()->toArray();
+
+            return [[
+                'labels' => $labels,
+                'values' => $values,
+            ]];
         }
 
-        $labels = $joursSemaine->keys()->map(fn($date) => Carbon::parse($date)->locale('fr')->isoFormat('dddd'))->toArray();
-        $values = $joursSemaine->values()->toArray();
+        public function MeilleursVendeurs()
+        {
+            return User::select(
+                    'users.id',
+                    'users.name',
+                    DB::raw('COUNT(orders.id) as total_commandes'),
+                    DB::raw('SUM(orders.total_amount) as total_ventes')
+                )
+                ->join('orders', 'users.id', '=', 'orders.user_id')
+                ->where('orders.status', 'approved')
+                ->whereMonth('orders.created_at', Carbon::now()->month)
+                ->whereYear('orders.created_at', Carbon::now()->year)
+                ->groupBy('users.id', 'users.name')
+                ->orderByDesc('total_ventes')
+                ->take(5)
+                ->get();
+        }
 
-        return [[
-            'labels' => $labels,
-            'values' => $values,
-        ]];
-    }
-
-    public function MeilleursVendeurs()
-    {
-        return User::select('users.id', 'users.name', DB::raw('COUNT(orders.id) as total_commandes'), DB::raw('SUM(orders.total_amount) as total_ventes'))
-            ->join('orders', 'users.id', '=', 'orders.user_id')
-            ->where('orders.status', 'approved')
-            ->groupBy('users.id', 'users.name')
-            ->orderByDesc('total_ventes')
-            ->take(5)
-            ->get();
-    }
-
+        
     public function VentesParUser()
     {
         $ventesParUser = order::select('user_id', DB::raw('SUM(total_amount) as total_ventes'))
@@ -159,4 +167,38 @@ class ChartController extends Controller
             'values' => $ventesParUser->pluck('total_ventes')->toArray(),
         ]];
     }
+
+
+    public function VentesParVendeur($vendeurId)
+        {
+            $ventesParJour = order::select(
+                    DB::raw('DATE(created_at) as date'),
+                    DB::raw('SUM(total_amount) as chiffre_affaire')
+                )
+                ->where('user_id', $vendeurId)
+                ->where('status', 'approved')
+                ->whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek(),
+                ])
+                ->groupBy(DB::raw('DATE(created_at)'))
+                ->orderByDesc('chiffre_affaire') // Ordonner par chiffre d'affaires décroissant
+                ->get();
+
+            $joursSemaine = collect(Carbon::now()->startOfWeek()->daysUntil(Carbon::now()->endOfWeek()))
+                ->mapWithKeys(fn($date) => [$date->format('Y-m-d') => 0]);
+
+            foreach ($ventesParJour as $vente) {
+                $date = $vente->date;
+                $joursSemaine[$date] = $vente->chiffre_affaire;
+            }
+
+            $labels = $joursSemaine->keys()->map(fn($date) => Carbon::parse($date)->locale('fr')->isoFormat('dddd'))->toArray();
+            $values = $joursSemaine->values()->toArray();
+
+            return [[
+                'labels' => $labels,
+                'values' => $values,
+            ]];
+        }
 }

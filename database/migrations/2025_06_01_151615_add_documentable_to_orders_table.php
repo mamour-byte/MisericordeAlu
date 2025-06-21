@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
+        Schema::table('order', function (Blueprint $table) {
             $table->unsignedBigInteger('invoice_id')->nullable();
             $table->unsignedBigInteger('quote_id')->nullable();
 
-            $table->foreign('invoice_id')->references('id')->on('invoices')->nullOnDelete();
-            $table->foreign('quote_id')->references('id')->on('quotes')->nullOnDelete();
+            $table->foreign('invoice_id')->references('id')->on('invoice')->nullOnDelete();
+            $table->foreign('quote_id')->references('id')->on('quotecl')->nullOnDelete();
         });
     }
 

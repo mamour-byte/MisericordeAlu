@@ -10,7 +10,7 @@ use Orchid\Screen\Actions\Button;
 use Orchid\Support\Facades\Layout;
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\Subcategory;
+use App\Models\Category;
 use Orchid\Support\Facades\Alert;
 use App\Models\StockMovement;
 
@@ -85,9 +85,9 @@ class AddProductScreen extends Screen
                     ->title("Seuil d'alerte")
                     ->required(),
 
-                Relation::make('product.subcategory_id')
-                    ->title('Sous-catégorie')
-                    ->fromModel(Subcategory::class, 'name')
+                Relation::make('product.categorie_id')
+                    ->title('Catégorie')
+                    ->fromModel(Category::class, 'name')
                     ->required(),
             ])
         ];
@@ -95,11 +95,14 @@ class AddProductScreen extends Screen
 
 
     public function save(Request $request)
-    {
+        {
         $data = $request->get('product');
+        $shop = auth()->user()->shop;
+
+        // Ajoute shop_id au tableau de données
+        $data['shop_id'] = $shop->id;
 
         $product = Product::create($data);
-        $shop = auth()->user()->shop;
 
         StockMovement::create([
             'product_id' => $product->id,

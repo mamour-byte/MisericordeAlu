@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 
-
-
-
 use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\ProductScreen;
 use App\Orchid\Screens\ShopScreen;
@@ -13,7 +10,7 @@ use App\Orchid\Screens\StockScreen;
 use App\Orchid\Screens\CommandesScreen;
 use App\Orchid\Screens\FabricationScreen;
 use App\Orchid\Screens\DevisPreviewScreen;
-
+use App\Orchid\Screens\VendeurDashboardScreen;
 use App\Orchid\Screens\FacturePreviewScreen;
 
 use App\Orchid\Screens\Crud\EditCommandeScreen;
@@ -49,6 +46,9 @@ use Tabuna\Breadcrumbs\Trail;
 Route::screen('/main', PlatformScreen::class)
     ->name('platform.main');
 
+// Platform > Index
+Route::screen('Dashbord', VendeurDashboardScreen::class)
+    ->name('platform.vendeur.dashboard');
 
 
 // Platform > Product
