@@ -20,6 +20,7 @@ class Order extends Model
         'user_id',
         'invoice_id',
         'quote_id',
+        'archived',
     ];
 
     public function items()

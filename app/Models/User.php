@@ -72,5 +72,12 @@ class User extends Authenticatable
             return $this->hasOne(Shop::class, 'manager_id');
         }
 
+    public function avoir()
+        {
+            return $this->hasOne(Avoir::class, 'user_id');
+        }
+
+    
+
 
 }

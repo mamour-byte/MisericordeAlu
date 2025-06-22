@@ -30,6 +30,7 @@ class VendeurDashboardScreen extends Screen
         if ($shop) {
             $commandes = Order::with(['items.product'])
                 ->where('shop_id', $shop->id)
+                ->where('archived', '!=', 'oui')
                 ->latest()
                 ->paginate(8);
         }
@@ -38,11 +39,13 @@ class VendeurDashboardScreen extends Screen
         $ventesJour = Order::where('user_id', $vendeurId)
             ->whereDate('created_at', now()->toDateString())
             ->where('status', 'approved')
+            ->where('archived', '!=', 'oui')
             ->count();
 
         $totalJour = Order::where('user_id', $vendeurId)
             ->whereDate('created_at', now()->toDateString())
             ->where('status', 'approved')
+            ->where('archived', '!=', 'oui')
             ->sum('total_amount');
 
         $chart = app(ChartController::class);

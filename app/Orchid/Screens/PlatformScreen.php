@@ -60,6 +60,7 @@ class PlatformScreen extends Screen
                 'OrderData'   => $ventesSemaine,
 
                 'Commandes' => Order::with(['items.product'])
+                                ->where('archived', 'non')
                                 ->whereBetween('created_at', [
                                     Carbon::now()->startOfDay(),
                                     Carbon::now()->endOfDay(),
@@ -128,8 +129,8 @@ class PlatformScreen extends Screen
             ]),
 
             Layout::table('Commandes', [
-                        // TD::make('name', 'Boutique')
-                        //     ->render(fn($user) => $user->shop->name ?? 'Aucune'),
+                        TD::make('name', 'Boutique')
+                            ->render(fn($user) => $user->shop->name ?? 'Aucune'),
 
                         TD::make('user.name','Vendeur')
                             ->sort()

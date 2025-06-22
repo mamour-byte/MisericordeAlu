@@ -14,39 +14,11 @@ use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 use Orchid\Support\Facades\Toast;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NumberGenerator as NumberService;
 
 class OrderController extends Controller
 {
-    private function generateDocumentNumber(string $type): string
-    {
-        $prefix = $type === 'Invoice' ? 'INV-' : 'QT-';
-
-        $lastNumber = $type === 'Invoice'
-            ? InvoiceItem::whereNotNull('no_invoice')->orderByDesc('id')->value('no_invoice')
-            : QuoteItem::whereNotNull('no_quote')->orderByDesc('id')->value('no_quote');
-
-        if ($lastNumber) {
-            $number = (int) str_replace($prefix, '', $lastNumber);
-            $number++;
-        } else {
-            $number = 1;
-        }
-
-        return $prefix . str_pad($number, 5, '0', STR_PAD_LEFT);
-    }
-
-    private function generateOrderNumber(): string
-    {
-        $prefix = 'ORD-';
-        $lastNumber = OrderItem::whereNotNull('no_order')->orderByDesc('id')->value('no_order');
-        if ($lastNumber) {
-            $number = (int) str_replace($prefix, '', $lastNumber);
-            $number++;
-        } else {
-            $number = 1;
-        }
-        return $prefix . str_pad($number, 5, '0', STR_PAD_LEFT);
-    }
+    
 
     public function save(Request $request)
     {
@@ -67,8 +39,8 @@ class OrderController extends Controller
         }
 
         $documentType = $data['Docs'] ?? 'Invoice';
-        $documentNumber = $this->generateDocumentNumber($documentType);
-        $orderNumber = $this->generateOrderNumber();
+        $documentNumber = NumberService::generateDocumentNumber($documentType);
+        $orderNumber = NumberService::generateOrderNumber();
 
         if (count($productIds) !== count($quantities)) {
             Toast::error('Le nombre de produits ne correspond pas aux quantités.');

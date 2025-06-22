@@ -44,6 +44,7 @@ class CommandesScreen extends Screen
             return [
                 'Commandes' => Order::with(['items.product'])
                     ->where('user_id', $user->id)
+                    ->where('archived', 'non')
                     ->latest()
                     ->paginate(10),
             ];

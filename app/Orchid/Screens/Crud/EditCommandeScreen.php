@@ -16,6 +16,10 @@ use Orchid\Support\Facades\Layout;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\OrderItem;
+use App\Models\Avoir;
+use App\Models\AvoirItem;
+use App\Services\NumberGenerator;
+
 
 class EditCommandeScreen extends Screen
 {
@@ -97,6 +101,9 @@ class EditCommandeScreen extends Screen
                         Relation::make('order.products')
                             ->title('Produits')
                             ->fromModel(Product::class, 'name')
+                            ->applyScope('byShop', auth()->user()->shop?->id)
+                            ->searchColumns('name')
+                            ->displayAppend('name')
                             ->multiple()
                             ->required(),
 
@@ -122,33 +129,87 @@ class EditCommandeScreen extends Screen
         }
 
 
+    /**
+     * Handle the form submission.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request)
         {
             $data = $request->get('order');
-            $order = Order::findOrFail($data['id']);
+            $originalOrder = Order::findOrFail($data['id']);
 
-            $order->update([
+            // 1. Archiver l’ancienne commande
+            $originalOrder->update(['archived' => 'oui' , 'status' => 'canceled']);
+
+            // 2. Générer l’avoir à partir de l’ancienne commande
+            $noAvoir = NumberGenerator::generateCreditNoteNumber();
+
+            $credit = Avoir::create([
+                'no_avoir'         => $noAvoir,
+                'order_id'         => $originalOrder->id,
+                'user_id'          => $originalOrder->user_id,
+                'shop_id'          => $originalOrder->shop_id,
+                'customer_name'    => $originalOrder->customer_name,
+                'customer_email'   => $originalOrder->customer_email,
+                'customer_phone'   => $originalOrder->customer_phone,
+                'customer_address' => $originalOrder->customer_address,
+                'total_amount'     => $originalOrder->total_amount,
+            ]);
+
+            foreach ($originalOrder->items as $item) {
+                $credit->items()->create([
+                    'product_id' => $item->product_id,
+                    'quantity'   => $item->quantity,
+                    'unit_price' => $item->unit_price,
+                    'no_avoir'   => $noAvoir,
+                ]);
+            }
+
+            // 3. Créer la nouvelle commande
+            $noOrder = NumberGenerator::generateOrderNumber();
+            $quantities = array_map('trim', explode(',', $data['quantities']));
+            $products = $data['products'];
+            $documentType = $data['Docs'] ?? 'Invoice';
+            $total = 0;
+
+            $newOrder = Order::create([
+                'no_order'         => $noOrder,
                 'customer_name'    => $data['customer_name'],
                 'customer_email'   => $data['customer_email'],
                 'customer_phone'   => $data['customer_phone'],
                 'customer_address' => $data['customer_address'],
-                'status'           => $data['Docs'],
+                'status'           => $documentType === 'Invoice' ? 'approved' : 'pending',
+                'total_amount'     => 0,
+                'user_id'          => $originalOrder->user_id,
+                'shop_id'          => $originalOrder->shop_id,
             ]);
 
-            $quantities = explode(',', $data['quantities']);
-            $products = $data['products'];
-            $orderItems = [];
             foreach ($products as $index => $productId) {
-                $orderItems[] = [
-                    'order_id'   => $order->id,
+                $product = Product::findOrFail($productId);
+                $quantity = (int)$quantities[$index];
+                $unit_price = (float)$product->price;
+                $item_total = $quantity * $unit_price;
+
+                $newOrder->items()->create([
                     'product_id' => $productId,
-                    'quantity'   => isset($quantities[$index]) ? (int)$quantities[$index] : 1,
-                ];
+                    'quantity'   => $quantity,
+                    'unit_price' => $unit_price,
+                    'no_order'   => $noOrder,
+                ]);
+
+                $total += $item_total;
             }
 
-            Toast::info('Commande mise à jour avec succès.');
+            $newOrder->update(['total_amount' => $total]);
+
+            // 4. Générer la facture ou devis comme dans ton code actuel (facultatif ici)
+
+            Toast::info('Nouvelle commande créée à partir de l\'avoir.');
             return redirect()->route('platform.Commandes');
         }
+
 
 
 }

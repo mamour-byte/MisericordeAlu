@@ -12,6 +12,7 @@ use App\Orchid\Screens\FabricationScreen;
 use App\Orchid\Screens\DevisPreviewScreen;
 use App\Orchid\Screens\VendeurDashboardScreen;
 use App\Orchid\Screens\FacturePreviewScreen;
+use App\Orchid\Screens\VentesScreen;
 
 use App\Orchid\Screens\Crud\EditCommandeScreen;
 use App\Orchid\Screens\FournisseursScreen;
@@ -49,6 +50,11 @@ Route::screen('/main', PlatformScreen::class)
 // Platform > Index
 Route::screen('Dashbord', VendeurDashboardScreen::class)
     ->name('platform.vendeur.dashboard');
+
+
+// Platform > Ventes
+Route::screen('Ventes', VentesScreen::class)
+    ->name('platform.ventes');
 
 
 // Platform > Product

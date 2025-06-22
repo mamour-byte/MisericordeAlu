@@ -52,6 +52,11 @@ class PlatformProvider extends OrchidServiceProvider
                     ->title('Navigation')
                     ->route(config('platform.index'));
 
+                $menu[] = Menu::make(__('Ventes'))
+                    ->icon('bs.house-door')
+                    ->title('Ventes & Devis')
+                    ->route('platform.ventes');
+
                 $menu[] = Menu::make(__('Boutiques'))
                     ->icon('bs.shop-window')
                     ->title('Gestion des factures & Devis')

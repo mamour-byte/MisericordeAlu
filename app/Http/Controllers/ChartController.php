@@ -15,6 +15,7 @@ class ChartController extends Controller
         $bestSeller = orderItem::select('order_items.product_id', DB::raw('SUM(order_items.quantity) as total_sold'))
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->where('orders.status', 'approved')
+            ->where('archived', '!=', 'oui')
             ->whereMonth('order_items.created_at', Carbon::now()->month)
             ->whereYear('order_items.created_at', Carbon::now()->year)
             ->groupBy('order_items.product_id')
@@ -33,6 +34,7 @@ class ChartController extends Controller
         $best = order::select('customer_name', DB::raw('SUM(total_amount) as total_spent'))
             ->whereMonth('created_at', now()->month)
             ->where('status', 'approved')
+            ->where('archived', '!=', 'oui')
             ->groupBy('customer_name')
             ->orderByDesc('total_spent')
             ->first();
@@ -47,6 +49,7 @@ class ChartController extends Controller
     {
         $count = order::whereDate('created_at', Carbon::today())
             ->where('status', 'approved')
+            ->where('archived', '!=', 'oui')
             ->count();
 
         return [
@@ -62,6 +65,7 @@ class ChartController extends Controller
                 Carbon::now()->endOfDay(),
             ])
             ->where('status', 'approved')
+            ->where('archived', '!=', 'oui')
             ->sum('total_amount');
 
         return [
@@ -74,6 +78,7 @@ class ChartController extends Controller
     {
         $total = order::whereMonth('created_at', now()->month)
             ->where('status', 'approved')
+            ->where('archived', '!=', 'oui')
             ->sum('total_amount');
 
         return [
@@ -87,6 +92,7 @@ class ChartController extends Controller
         $ventesParProduit = orderItem::select('order_items.product_id', DB::raw('SUM(order_items.quantity) as total_ventes'))
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->where('orders.status', 'approved')
+            ->where('archived', '!=', 'oui')
             ->whereMonth('order_items.created_at', Carbon::now()->month)
             ->whereYear('order_items.created_at', Carbon::now()->year)
             ->with('product')
@@ -108,6 +114,7 @@ class ChartController extends Controller
                     DB::raw('SUM(total_amount) as chiffre_affaire')
                 )
                 ->where('status', 'approved')
+                ->where('archived', '!=', 'oui')
                 ->whereBetween('created_at', [
                     Carbon::now()->startOfWeek(),
                     Carbon::now()->endOfWeek(),
@@ -143,6 +150,7 @@ class ChartController extends Controller
                 )
                 ->join('orders', 'users.id', '=', 'orders.user_id')
                 ->where('orders.status', 'approved')
+                ->where('archived', '!=', 'oui')
                 ->whereMonth('orders.created_at', Carbon::now()->month)
                 ->whereYear('orders.created_at', Carbon::now()->year)
                 ->groupBy('users.id', 'users.name')
@@ -158,6 +166,7 @@ class ChartController extends Controller
             ->whereMonth('created_at', Carbon::now()->month)
             ->whereYear('created_at', Carbon::now()->year)
             ->where('status', 'approved')
+            ->where('archived', '!=', 'oui')
             ->groupBy('user_id')
             ->with('user')
             ->get();
@@ -177,6 +186,7 @@ class ChartController extends Controller
                 )
                 ->where('user_id', $vendeurId)
                 ->where('status', 'approved')
+                ->where('archived', '!=', 'oui')
                 ->whereBetween('created_at', [
                     Carbon::now()->startOfWeek(),
                     Carbon::now()->endOfWeek(),

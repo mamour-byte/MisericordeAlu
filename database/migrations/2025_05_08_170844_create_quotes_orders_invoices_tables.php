@@ -17,7 +17,7 @@ return new class extends Migration
                 $table->string('customer_email');
                 $table->string('customer_phone')->nullable();
                 $table->string('customer_address')->nullable();
-                $table->enum('status', ['pending', 'approved', 'paid'])->default('pending');
+                $table->enum('status', ['pending', 'approved', 'canceled'])->default('pending');
                 $table->decimal('total_amount', 10, 2);
                 $table->timestamps();
             });
