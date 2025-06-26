@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->enum('archived', ['oui', 'non'])->default('non');
-        });
+        $table->unsignedBigInteger('invoice_id')->nullable()->after('id')->constraints('invoices', 'id')->onDelete('cascade');
+        $table->unsignedBigInteger('quote_id')->nullable()->after('invoice_id')->constraints('quotes', 'id')->onDelete('cascade');;
+    });
     }
 
     /**

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\AvoirItem;
 
 
-class avoir extends Model
+class Avoir extends Model
 {
     protected $fillable = [
         'no_avoir', 'order_id', 'user_id', 'shop_id',

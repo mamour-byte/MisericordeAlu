@@ -19,6 +19,7 @@ use App\Models\OrderItem;
 use App\Models\Avoir;
 use App\Models\AvoirItem;
 use App\Services\NumberGenerator;
+use App\Models\StockMovement;
 
 
 class EditCommandeScreen extends Screen
@@ -143,6 +144,9 @@ class EditCommandeScreen extends Screen
             // 1. Archiver l’ancienne commande
             $originalOrder->update(['archived' => 'oui' , 'status' => 'canceled']);
 
+            // 1.b Supprimer ou annuler les anciens mouvements de stock
+            StockMovement::where('order_id', $originalOrder->id)->delete();
+
             // 2. Générer l’avoir à partir de l’ancienne commande
             $noAvoir = NumberGenerator::generateCreditNoteNumber();
 
@@ -197,6 +201,16 @@ class EditCommandeScreen extends Screen
                     'quantity'   => $quantity,
                     'unit_price' => $unit_price,
                     'no_order'   => $noOrder,
+                ]);
+
+                // 3.b Créer le mouvement de stock pour chaque produit
+                StockMovement::create([
+                    'product_id' => $productId,
+                    'order_id'   => $newOrder->id,
+                    'shop_id'    => $newOrder->shop_id,
+                    'type'       => StockMovement::TYPE_EXIT,
+                    'quantity'   => $quantity,
+                    'notes'      => 'Vente modifiée, commande #' . $newOrder->id,
                 ]);
 
                 $total += $item_total;

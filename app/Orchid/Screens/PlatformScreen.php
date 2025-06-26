@@ -16,6 +16,7 @@ use App\Orchid\Layouts\OrderTabs\OrderLayout;
 use App\Models\Order;
 use Orchid\Screen\TD;
 use Carbon\Carbon;
+use Orchid\Support\Facades\Toast;
 
 class PlatformScreen extends Screen
 {
@@ -27,13 +28,6 @@ class PlatformScreen extends Screen
     public function query(): iterable
         {
             $user = auth()->user();
-
-            if (!$user->shop) {
-                Toast::error("Aucun magasin ne vous a été attribué. Veuillez contacter l'administrateur.");
-                return [
-                    'Commandes' => collect(), 
-                ];
-            }
 
 
             $chart = app(ChartController::class);

@@ -79,7 +79,7 @@
 <body>
 
     <h1>{{$type_document}}</h1>
-    <h2>n° {{ $numero_facture }}</h2>
+    <h2>N° {{ $numero_facture }}</h2>
 
     <div class="company">
         <strong>Misericorde Alu</strong><br>
@@ -92,8 +92,8 @@
     <div class="client">
         {{ $client_nom }}<br>
         {{ $client_adresse }}<br>
-        Tél: {{ $client_telephone }}<br>
-        Email: {{ $client_email }}<br>
+        {{ $client_telephone }}<br>
+        {{ $client_email }}<br>
     </div>
 
     <div class="clearfix"></div>
@@ -108,8 +108,7 @@
                 <th>Quantité</th>
                 <th>Longeur</th>
                 <th>Largeur</th>
-                <th>Prix de M² (F CFA)</th>
-                <th>Total ligne (F CFA)</th>
+                <th>Total (F CFA)</th>
             </tr>
         </thead>
         <tbody>
@@ -119,7 +118,6 @@
                     <td>{{ $produit['quantity'] }}</td>
                     <td>{{ $produit['longueur'] }}</td>
                     <td>{{ $produit['largeur'] }}</td>
-                    <td>{{ number_format($produit['price_meter'], 2, ',', ' ') }}</td>
                     <td>{{ number_format($produit['total_ligne'], 2, ',', ' ') }}</td>
                 </tr>
             @endforeach
@@ -128,21 +126,21 @@
     
 
     <table class="totals">
-        <tr>
+        <!-- <tr>
             <td class="label"><strong>Sous-total (HT)</strong></td>
             <td class="value">{{ number_format($subtotal, 2, ',', ' ') }} F CFA</td>
         </tr>
         <tr>
             <td class="label"><strong>TVA ({{ $taxRate }}%)</strong></td>
             <td class="value">{{ number_format($taxAmount, 2, ',', ' ') }} F CFA</td>
-        </tr>
+        </tr> -->
         <tr>
             <td class="label"><strong>Total TTC</strong></td>
             <td class="value"><strong>{{ number_format($totalAmount, 2, ',', ' ') }} F CFA</strong></td>
         </tr>
     </table>
 
-    <p class="tva-status">{{ $tva_status }}</p>
+    <!-- <p class="tva-status">{{ $tva_status }}</p> -->
 
     <footer>
         <div class="footer">

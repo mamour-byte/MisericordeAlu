@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('avoirs', function (Blueprint $table) {
             $table->id();
             $table->string('no_avoir')->unique(); // Numéro d’avoir
-            $table->unsignedBigInteger('order_id'); // Commande d'origine
+            $table->foreignId('order_id')->constrained('order')->onDelete('cascade');// Commande d'origine
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('shop_id');
             $table->string('customer_name');
@@ -25,7 +25,6 @@ return new class extends Migration
             $table->string('status')->default('draft'); // draft, confirmed, etc.
             $table->timestamps();
 
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
         });
 
     }

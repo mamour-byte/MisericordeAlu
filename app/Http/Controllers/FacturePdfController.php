@@ -37,8 +37,20 @@ class FacturePdfController extends Controller
 
         $tva_status = $factureTvaIncluse ? 'TVA incluse' : 'TVA non incluse';
 
+        if (!is_null($order->quote_id) && is_null($order->invoice_id)) {
+                $type_document = 'Devis';
+            } elseif (!is_null($order->invoice_id) && is_null($order->quote_id)) {
+                $type_document = 'Facture';
+            } else {
+                $type_document = 'Document';
+            }
+
+            // Récupérer le numéro de document depuis order_items
+            $numero_Doc = $order->items->first()->no_order ?? '-';
+
+
         $pdfData = [
-            'numero_facture' => $order->facture->no_invoice ?? '-',
+            'numero_Doc' => $numero_Doc ?? '-',
             'date_facture' => $order->facture->created_at ?? now()->format('Y-m-d'),
             'date_echeance' => $order->facture->date_echeance ?? now()->addDays(30)->format('Y-m-d'),
 
@@ -54,7 +66,7 @@ class FacturePdfController extends Controller
             'totalAmount' => $totalAmount,
             'tva_status' => $tva_status,
 
-            'type_document' => ucfirst($order->facture->type_document ?? ''), 
+            'type_document' => $type_document, 
         ];
 
         $pdf = PDF::loadView('pdf.facturepdf', $pdfData);
@@ -80,13 +92,13 @@ class FacturePdfController extends Controller
                     'nom' => $item->type ?? 'Produit inconnu',
                     'quantity' => $quantity,
                     'price_meter' => $price_meter,
-                    'total_ligne' => $quantity * $price_meter * $width * $height ,
+                    'total_ligne' => $quantity * $price_meter * ($width*0.01) * ($height*0.01) , // Conversion en mètres,
                 ];
             });
 
             // Calcul total
             $subtotal = $fabrication->items->sum(function ($item) {
-                return $item->quantity * ($item->price_meter ?? 0) * ($item->width ?? 0) * ($item->height ?? 0);
+                return $item->quantity * ($item->price_meter ?? 0) * ($item->width*0.01 ?? 0) * ($item->height*0.01 ?? 0);
             });
 
             $taxRate = 18;
@@ -96,10 +108,19 @@ class FacturePdfController extends Controller
             $totalAmount = $subtotal + $taxAmount;
 
             $tva_status = $tvaIncluse ? 'TVA incluse' : 'TVA non incluse';
+            $numeroDevis = 'DV'.'-'.now()->format('md') . 00 . $fabrication->id;
+
+            if($fabrication->status == 'quote') {
+                $type_document = 'Devis';
+            }elseif($fabrication->status == 'invoice') {
+                $type_document = 'Facture';
+            } else {
+                $type_document = 'Document';
+            }
 
             // Préparation des données pour le PDF
             $pdfData = [
-                'numero_facture' => $fabrication->no_qoute ?? '-',
+                'numero_facture' => $numeroDevis ?? '-',
                 'date_facture' => $fabrication->created_at->format('Y-m-d') ?? now()->format('Y-m-d'),
                 'date_echeance' => $fabrication->date_echeance ?? now()->addDays(30)->format('Y-m-d'),
 
@@ -115,7 +136,7 @@ class FacturePdfController extends Controller
                 'totalAmount' => $totalAmount,
                 'tva_status' => $tva_status,
 
-                'type_document' => 'Devis',
+                'type_document' => $type_document,
             ];
 
             // Génération du PDF

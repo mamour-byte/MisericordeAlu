@@ -38,7 +38,7 @@ class UserProfileScreen extends Screen
      */
     public function name(): ?string
     {
-        return 'My Account';
+        return 'Mon Compte';
     }
 
     /**
@@ -46,7 +46,7 @@ class UserProfileScreen extends Screen
      */
     public function description(): ?string
     {
-        return 'Update your account details such as name, email address and password';
+        return 'Modifier les informations de votre compte';
     }
 
     /**
@@ -57,13 +57,13 @@ class UserProfileScreen extends Screen
     public function commandBar(): iterable
     {
         return [
-            Button::make('Back to my account')
+            Button::make('Compte')
                 ->novalidate()
                 ->canSee(Impersonation::isSwitch())
                 ->icon('bs.people')
                 ->route('platform.switch.logout'),
 
-            Button::make('Sign out')
+            Button::make('Deconnexion')
                 ->novalidate()
                 ->icon('bs.box-arrow-left')
                 ->route('platform.logout'),
@@ -77,20 +77,20 @@ class UserProfileScreen extends Screen
     {
         return [
             Layout::block(UserEditLayout::class)
-                ->title(__('Profile Information'))
-                ->description(__("Update your account's profile information and email address."))
+                ->title(__('Informations du profil'))
+                ->description(__("Mettre à jour vos informations de profil"))
                 ->commands(
-                    Button::make(__('Save'))
+                    Button::make(__('Sauvegarder'))
                         ->type(Color::BASIC())
                         ->icon('bs.check-circle')
                         ->method('save')
                 ),
 
             Layout::block(ProfilePasswordLayout::class)
-                ->title(__('Update Password'))
-                ->description(__('Ensure your account is using a long, random password to stay secure.'))
+                ->title(__('Modifier le mot de passe'))
+                ->description(__('Assurez vous que votre mot de passe est long et complexe.'))
                 ->commands(
-                    Button::make(__('Update password'))
+                    Button::make(__('Modifier password'))
                         ->type(Color::BASIC())
                         ->icon('bs.check-circle')
                         ->method('changePassword')

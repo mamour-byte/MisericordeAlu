@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Facture n° {{ $numero_facture }}</title>
+    <title>Facture n° {{ $numero_Doc }}</title>
     <style>
         body {
             font-family: DejaVu Sans, sans-serif;
@@ -79,7 +79,7 @@
 <body>
 
     <h1>{{$type_document}}</h1>
-    <h2>n° {{ $numero_facture }}</h2>
+    <h2>N° {{ $numero_Doc }}</h2>
 
     <div class="company">
         <strong>Misericorde Alu</strong><br>
@@ -123,21 +123,21 @@
     </table>
 
     <table class="totals">
-        <tr>
+        <!-- <tr>
             <td class="label"><strong>Sous-total (HT)</strong></td>
             <td class="value">{{ number_format($subtotal, 2, ',', ' ') }} F CFA</td>
-        </tr>
-        <tr>
+        </tr> -->
+        <!-- <tr>
             <td class="label"><strong>TVA ({{ $taxRate }}%)</strong></td>
             <td class="value">{{ number_format($taxAmount, 2, ',', ' ') }} F CFA</td>
-        </tr>
+        </tr> -->
         <tr>
             <td class="label"><strong>Total TTC</strong></td>
             <td class="value"><strong>{{ number_format($totalAmount, 2, ',', ' ') }} F CFA</strong></td>
         </tr>
     </table>
 
-    <p class="tva-status">{{ $tva_status }}</p>
+    <!-- <p class="tva-status">{{ $tva_status }}</p> -->
 
     <footer>
         <div class="footer">

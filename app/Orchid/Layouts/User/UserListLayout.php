@@ -28,7 +28,7 @@ class UserListLayout extends Table
     public function columns(): array
     {
         return [
-            TD::make('name', __('Name'))
+            TD::make('name', __('Nom'))
                 ->sort()
                 ->cantHide()
                 ->filter(Input::make())
@@ -68,7 +68,7 @@ class UserListLayout extends Table
                             ->route('platform.systems.users.edit', $user->id)
                             ->icon('bs.pencil'),
 
-                        Button::make(__('Delete'))
+                        Button::make(__('Supprimer'))
                             ->icon('bs.trash3')
                             ->confirm(__('Once the account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.'))
                             ->method('remove', [

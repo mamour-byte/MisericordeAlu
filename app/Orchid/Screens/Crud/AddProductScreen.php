@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Orchid\Screens\crud;
+namespace App\Orchid\Screens\Crud;
 
 use Orchid\Screen\Screen;
 use Orchid\Screen\Fields\Input;

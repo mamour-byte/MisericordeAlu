@@ -14,11 +14,12 @@ return new class extends Migration
                 $table->foreignId('shop_id')->constrained()->onDelete('cascade');
                 $table->foreignId("user_id")->nullable()->constrained('users')->onDelete('set null');
                 $table->string('customer_name');
-                $table->string('customer_email');
+                $table->string('customer_email')->nullable();
                 $table->string('customer_phone')->nullable();
                 $table->string('customer_address')->nullable();
                 $table->enum('status', ['pending', 'approved', 'canceled'])->default('pending');
                 $table->decimal('total_amount', 10, 2);
+                $table->enum('archived', ['oui', 'non'])->default('non');
                 $table->timestamps();
             });
 

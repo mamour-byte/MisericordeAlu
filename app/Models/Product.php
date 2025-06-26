@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Orchid\Filters\Filterable;
+
 
 class Product extends Model
 {
+    use Filterable;
+
     protected $fillable = [
         'name', 
         'description', 
@@ -18,7 +22,7 @@ class Product extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class, 'subcategory_id');
+        return $this->belongsTo(Category::class, 'categorie_id');
     }
 
     public function stockMovements()
@@ -34,6 +38,11 @@ class Product extends Model
     public function scopeByShop($query, $shop_id)
     {
         return $query->where('shop_id', $shop_id);
+    }
+
+    public function shop()
+    {
+        return $this->belongsTo(Shop::class);
     }
 
 }

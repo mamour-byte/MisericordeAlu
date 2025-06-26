@@ -6,13 +6,13 @@ declare(strict_types=1);
 use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\ProductScreen;
 use App\Orchid\Screens\ShopScreen;
-use App\Orchid\Screens\StockScreen;
 use App\Orchid\Screens\CommandesScreen;
 use App\Orchid\Screens\FabricationScreen;
 use App\Orchid\Screens\DevisPreviewScreen;
 use App\Orchid\Screens\VendeurDashboardScreen;
 use App\Orchid\Screens\FacturePreviewScreen;
 use App\Orchid\Screens\VentesScreen;
+use App\Orchid\Screens\StockScreen;
 
 use App\Orchid\Screens\Crud\EditCommandeScreen;
 use App\Orchid\Screens\FournisseursScreen;
@@ -23,6 +23,7 @@ use App\Orchid\Screens\crud\AddFournisseursScreen;
 use App\Orchid\Screens\crud\EditFournisseursScreen;
 use App\Orchid\Screens\crud\AddShopScreen;
 use App\Orchid\Screens\crud\EditShopScreen;
+use App\Orchid\Screens\crud\AddBonScreen;
 
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
@@ -55,6 +56,14 @@ Route::screen('Dashbord', VendeurDashboardScreen::class)
 // Platform > Ventes
 Route::screen('Ventes', VentesScreen::class)
     ->name('platform.ventes');
+
+
+// Platform > Stock
+Route::screen('Stock', StockScreen::class)
+    ->name('platform.stock')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push(__('Stock'), route('platform.stock')));
 
 
 // Platform > Product
@@ -128,6 +137,11 @@ Route::screen('Fournisseurs/editFournisseurs/{supplier}', editFournisseursScreen
     ->breadcrumbs(fn (Trail $trail, $id) => $trail
         ->parent('platform.Fournisseurs')
         ->push(__('Edit Fournisseur'), route('platform.Fournisseurs.editFournisseurs', $id)));
+
+
+// Platform > Bon de Commande
+Route::screen('Fournisseurs/addBonCommande', AddBonScreen::class)
+    ->name('platform.Fournisseurs.addBonCommande');
 
 
 // Platform > Fabrication

@@ -9,10 +9,14 @@ use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Support\Facades\Toast;
+use PDF;
+
+
 
 
 class ProductScreen extends Screen
 {
+
     /**
      * Fetch data to be displayed on the screen.
      *
@@ -54,9 +58,13 @@ class ProductScreen extends Screen
     public function commandBar(): iterable
     {
         return [
-            Link::make(__('Add'))
+            Link::make(__('Ajouter'))
                 ->icon('bs.plus-circle')
                 ->route('platform.Product.add'),
+
+            Link::make('Bon de commande auto')
+                ->icon('bs.download')
+                ->route('products.export.lowstock'),
         ];
     }
 
@@ -83,4 +91,7 @@ class ProductScreen extends Screen
         return redirect()->route('platform.Product')
                 ->with('success', 'Produit supprimé avec succès');
     }
+
+
+
 }
