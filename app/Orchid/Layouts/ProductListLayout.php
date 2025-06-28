@@ -106,7 +106,7 @@ class ProductListLayout extends Table
                             Button::make(__('Supprimer'))
                                 ->icon('bs.trash3')
                                 ->confirm(__('Cette action est irréversible.'))
-                                ->method('delete', [
+                                ->method('remove', [
                                     'id' => $product->id,
                                 ]),
                         ]);

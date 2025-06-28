@@ -68,24 +68,15 @@ Route::screen('Stock', StockScreen::class)
 
 // Platform > Product
 Route::screen('Product', ProductScreen::class)
-    ->name('platform.Product')
-    ->breadcrumbs(fn (Trail $trail) => $trail
-        ->parent('platform.index')
-        ->push(__('Product'), route('platform.Product')));
+    ->name('platform.Product');
 
 // Platform > Product > Add
 Route::screen('Product/add', AddProductScreen::class)
-    ->name('platform.Product.add')
-    ->breadcrumbs(fn (Trail $trail) => $trail
-        ->parent('platform.Product')
-        ->push(__('Add Product'), route('platform.Product.add')));
+    ->name('platform.Product.add');
 
 // Platform > Product > Edit
 Route::screen('Product/edit/{product}', EditProductScreen::class)
-    ->name('platform.Product.edit')
-    ->breadcrumbs(fn (Trail $trail, $id) => $trail
-        ->parent('platform.Product')
-        ->push(__('Edit Product'), route('platform.Product.edit', $id)));
+    ->name('platform.Product.edit');
 
 
 // Platform > Shop 
@@ -103,17 +94,11 @@ Route::screen('shop/{shop}/edit', EditShopScreen::class)->name('platform.shop.ed
 
 // Platform > Commandes
 Route::screen('Commandes', CommandesScreen::class)
-    ->name('platform.Commandes')
-    ->breadcrumbs(fn (Trail $trail ) => $trail
-        ->parent('platform.index')
-        ->push(__('Commandes'), route('platform.Commandes')));
+    ->name('platform.Commandes');
 
 // Platform > Commandes > Edit
 Route::screen('Commandes/{order}/edit', EditCommandeScreen::class)
-    ->name('platform.Commandes.edit')
-    ->breadcrumbs(fn (Trail $trail, $id) => $trail
-        ->parent('platform.Commandes')
-        ->push(__('Edit Vente'), route('platform.Commandes.edit', $id)));
+    ->name('platform.Commandes.edit');
 
 
 
@@ -146,17 +131,11 @@ Route::screen('Fournisseurs/addBonCommande', AddBonScreen::class)
 
 // Platform > Fabrication
 Route::screen('Fabrication', FabricationScreen::class)
-    ->name('platform.Fabrication')
-    ->breadcrumbs(fn (Trail $trail) => $trail
-        ->parent('platform.index')
-        ->push(__('Fabrication'), route('platform.Fabrication')));
+    ->name('platform.Fabrication');
 
 // Platform > Fabrication > Edit
 Route::screen('Fabrication/{fabrication}/edit', FabricationEditScreen::class)
-    ->name('platform.Fabrication.edit')
-    ->breadcrumbs(fn (Trail $trail, $id) => $trail
-        ->parent('platform.Fabrication')
-        ->push(__('Edit Fabrication'), route('platform.Fabrication.edit', $id))); 
+    ->name('platform.Fabrication.edit'); 
         
 Route::screen('devis/preview', DevisPreviewScreen::class)
     ->name('preview-quote-pdf')

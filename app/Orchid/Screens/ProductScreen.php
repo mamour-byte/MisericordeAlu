@@ -10,6 +10,7 @@ use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Support\Facades\Toast;
 use PDF;
+use Illuminate\Http\Request;
 
 
 
@@ -84,8 +85,9 @@ class ProductScreen extends Screen
      * @param Product $product
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function remove(Product $product)
+    public function remove(Request $request)
     {
+        $product = Product::findOrFail($request->get('id'));
         $product->delete();
 
         return redirect()->route('platform.Product')

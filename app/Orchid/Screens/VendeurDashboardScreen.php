@@ -48,14 +48,24 @@ class VendeurDashboardScreen extends Screen
             ->where('archived', '!=', 'oui')
             ->sum('total_amount');
 
+        $moyenneJours = Order::where('user_id', $vendeurId)
+            ->whereDate('created_at', now()->toDateString())
+            ->where('status', 'approved')
+            ->where('archived', '!=', 'oui')
+            ->avg('total_amount');
+
+        // Meilleur client
+        
+
+
         $chart = app(ChartController::class);
         $ventesParProduit = $chart-> VentesParVendeur($vendeurId);
 
         return [
             'Commandes' => $commandes,
             'metrics' => [
-                'Meilleure Vente'  => 'Produit populaire',
                 'Meilleur Client' => 'Client fidèle',
+                'Moyenne Journaliere'  => $moyenneJours,
                 'Ventes du Jour'  => $ventesJour,
                 'Total Jour'      => number_format($totalJour, 2, '.', ' ') . ' F cfa',
             ],
