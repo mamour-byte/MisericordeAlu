@@ -24,6 +24,7 @@ use App\Orchid\Screens\crud\EditFournisseursScreen;
 use App\Orchid\Screens\crud\AddShopScreen;
 use App\Orchid\Screens\crud\EditShopScreen;
 use App\Orchid\Screens\crud\AddBonScreen;
+use App\Orchid\Screens\crud\AddCategorieProduits;
 
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
@@ -115,6 +116,14 @@ Route::screen('Fournisseurs/addFournisseurs', AddFournisseursScreen::class)
     ->breadcrumbs(fn (Trail $trail) => $trail
         ->parent('platform.Fournisseurs')
         ->push(__('Add Fournisseur'), route('platform.Fournisseurs.addFournisseurs')));
+
+
+// Platform > Fournisseurs > Add Categorie Produits
+Route::screen('Fournisseurs/addCategorieProduits', AddCategorieProduits::class)
+    ->name('platform.Fournisseurs.addCategorieProduits')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.Fournisseurs')
+        ->push(__('Add Categorie Produits'), route('platform.Fournisseurs.addCategorieProduits')));
 
 // Platform > Fournisseurs > Edit
 Route::screen('Fournisseurs/editFournisseurs/{supplier}', editFournisseursScreen::class)

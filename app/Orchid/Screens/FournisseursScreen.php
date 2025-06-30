@@ -48,9 +48,9 @@ class FournisseursScreen extends Screen
                 ->icon('bs.plus-circle')
                 ->route('platform.Fournisseurs.addFournisseurs'),
 
-            Link::make(__('Bon de commande'))
+            Link::make(__('Catégorie de Produits'))
                 ->icon('bs.plus-circle')
-                ->route('platform.Fournisseurs.addBonCommande'),
+                ->route('platform.Fournisseurs.addCategorieProduits'),
         ];
     }
 
