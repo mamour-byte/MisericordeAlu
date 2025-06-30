@@ -16,15 +16,15 @@ use App\Orchid\Screens\StockScreen;
 
 use App\Orchid\Screens\Crud\EditCommandeScreen;
 use App\Orchid\Screens\FournisseursScreen;
-use App\Orchid\Screens\crud\EditProductScreen;
-use App\Orchid\Screens\crud\AddProductScreen;
-use App\Orchid\Screens\crud\FabricationEditScreen;
-use App\Orchid\Screens\crud\AddFournisseursScreen;
-use App\Orchid\Screens\crud\EditFournisseursScreen;
-use App\Orchid\Screens\crud\AddShopScreen;
-use App\Orchid\Screens\crud\EditShopScreen;
-use App\Orchid\Screens\crud\AddBonScreen;
-use App\Orchid\Screens\crud\AddCategorieProduits;
+use App\Orchid\Screens\Crud\EditProductScreen;
+use App\Orchid\Screens\Crud\AddProductScreen;
+use App\Orchid\Screens\Crud\FabricationEditScreen;
+use App\Orchid\Screens\Crud\AddFournisseursScreen;
+use App\Orchid\Screens\Crud\EditFournisseursScreen;
+use App\Orchid\Screens\Crud\AddShopScreen;
+use App\Orchid\Screens\Crud\EditShopScreen;
+use App\Orchid\Screens\Crud\AddBonScreen;
+use App\Orchid\Screens\Crud\AddCategorieProduits;
 
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
