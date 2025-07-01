@@ -13,20 +13,20 @@ class ChartController extends Controller
 {
     public function MeilleurVenteMois()
     {
-        $bestSeller = OrderItem::select('Order_items.product_id', DB::raw('SUM(Order_items.quantity) as total_sold'))
-            ->join('Orders', 'Orders.id', '=', 'Order_items.Order_id')
-            ->where('Orders.status', 'approved')
+        $bestSeller = OrderItem::select('order_items.product_id', DB::raw('SUM(order_items.quantity) as total_sold'))
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status', 'approved')
             ->where('archived', '!=', 'oui')
-            ->whereMonth('Order_items.created_at', Carbon::now()->month)
-            ->whereYear('Order_items.created_at', Carbon::now()->year)
-            ->groupBy('Order_items.product_id')
-            ->OrderByDesc('total_sold')
+            ->whereMonth('order_items.created_at', Carbon::now()->month)
+            ->whereYear('order_items.created_at', Carbon::now()->year)
+            ->groupBy('order_items.product_id')
+            ->orderByDesc('total_sold')
             ->with('product')
             ->first();
 
         return [
             'value' => $bestSeller ? $bestSeller->product->name : 'Aucune vente',
-            // 'diff'  => $bestSeller ? $bestSeller->total_sold : 0,
+            'diff'  => $bestSeller ? $bestSeller->total_sold : 0,
         ];
     }
 
@@ -37,18 +37,18 @@ class ChartController extends Controller
             ->where('status', 'approved')
             ->where('archived', '!=', 'oui')
             ->groupBy('customer_name')
-            ->OrderByDesc('total_spent')
+            ->orderByDesc('total_spent')
             ->first();
 
         return [
             'value' => $best ? $best->customer_name : 'Aucun client',
-            // 'diff'  => $best ? (float) $best->total_spent : 0,
+            'diff'  => $best ? (float) $best->total_spent : 0,
         ];
     }
 
     public function VentesJour()
     {
-        $count = Order::whereDate('created_at', Carbon::today())
+        $count = order::whereDate('created_at', Carbon::today())
             ->where('status', 'approved')
             ->where('archived', '!=', 'oui')
             ->count();
@@ -61,7 +61,7 @@ class ChartController extends Controller
 
     public function TotalJour()
     {
-        $total = Order::whereBetween('created_at', [
+        $total = order::whereBetween('created_at', [
                 Carbon::now()->startOfDay(),
                 Carbon::now()->endOfDay(),
             ])
@@ -75,11 +75,9 @@ class ChartController extends Controller
         ];
     }
 
-    
     public function TotalMois()
     {
-        $total = Order::whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
+        $total = order::whereMonth('created_at', now()->month)
             ->where('status', 'approved')
             ->where('archived', '!=', 'oui')
             ->sum('total_amount');
@@ -92,14 +90,14 @@ class ChartController extends Controller
 
     public function VentesParProduit(): array
     {
-        $ventesParProduit = OrderItem::select('Order_items.product_id', DB::raw('SUM(Order_items.quantity) as total_ventes'))
-            ->join('Orders', 'Orders.id', '=', 'Order_items.Order_id')
-            ->where('Orders.status', 'approved')
+        $ventesParProduit = orderItem::select('order_items.product_id', DB::raw('SUM(order_items.quantity) as total_ventes'))
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status', 'approved')
             ->where('archived', '!=', 'oui')
-            ->whereMonth('Order_items.created_at', Carbon::now()->month)
-            ->whereYear('Order_items.created_at', Carbon::now()->year)
+            ->whereMonth('order_items.created_at', Carbon::now()->month)
+            ->whereYear('order_items.created_at', Carbon::now()->year)
             ->with('product')
-            ->groupBy('Order_items.product_id')
+            ->groupBy('order_items.product_id')
             ->take(7) // Limiter à 7 produits   
             ->get();
 
@@ -112,7 +110,7 @@ class ChartController extends Controller
 
         public function VentesSemaine(): array
         {
-            $ventesParJour = Order::select(
+            $ventesParJour = order::select(
                     DB::raw('DATE(created_at) as date'),
                     DB::raw('SUM(total_amount) as chiffre_affaire')
                 )
@@ -123,7 +121,7 @@ class ChartController extends Controller
                     Carbon::now()->endOfWeek(),
                 ])
                 ->groupBy(DB::raw('DATE(created_at)'))
-                ->OrderByDesc('chiffre_affaire') // Ordonner par chiffre d'affaires décroissant
+                ->orderByDesc('chiffre_affaire') // Ordonner par chiffre d'affaires décroissant
                 ->get();
 
             $joursSemaine = collect(Carbon::now()->startOfWeek()->daysUntil(Carbon::now()->endOfWeek()))
@@ -148,16 +146,16 @@ class ChartController extends Controller
             return User::select(
                     'users.id',
                     'users.name',
-                    DB::raw('COUNT(Orders.id) as total_commandes'),
-                    DB::raw('SUM(Orders.total_amount) as total_ventes')
+                    DB::raw('COUNT(orders.id) as total_commandes'),
+                    DB::raw('SUM(orders.total_amount) as total_ventes')
                 )
-                ->join('Orders', 'users.id', '=', 'Orders.user_id')
-                ->whereMonth('Orders.created_at', Carbon::now()->month)
-                ->whereYear('Orders.created_at', Carbon::now()->year)
-                ->where('Orders.status', 'approved')
+                ->join('orders', 'users.id', '=', 'orders.user_id')
+                ->where('orders.status', 'approved')
                 ->where('archived', '!=', 'oui')
+                ->whereMonth('orders.created_at', Carbon::now()->month)
+                ->whereYear('orders.created_at', Carbon::now()->year)
                 ->groupBy('users.id', 'users.name')
-                ->OrderByDesc('total_ventes')
+                ->orderByDesc('total_ventes')
                 ->take(5)
                 ->get();
         }
@@ -165,7 +163,7 @@ class ChartController extends Controller
         
     public function VentesParUser()
     {
-        $ventesParUser = Order::select('user_id', DB::raw('SUM(total_amount) as total_ventes'))
+        $ventesParUser = order::select('user_id', DB::raw('SUM(total_amount) as total_ventes'))
             ->whereMonth('created_at', Carbon::now()->month)
             ->whereYear('created_at', Carbon::now()->year)
             ->where('status', 'approved')
@@ -183,7 +181,7 @@ class ChartController extends Controller
 
     public function VentesParVendeur($vendeurId)
         {
-            $ventesParJour = Order::select(
+            $ventesParJour = order::select(
                     DB::raw('DATE(created_at) as date'),
                     DB::raw('SUM(total_amount) as chiffre_affaire')
                 )
@@ -195,7 +193,7 @@ class ChartController extends Controller
                     Carbon::now()->endOfWeek(),
                 ])
                 ->groupBy(DB::raw('DATE(created_at)'))
-                ->OrderByDesc('chiffre_affaire') // Ordonner par chiffre d'affaires décroissant
+                ->orderByDesc('chiffre_affaire') // Ordonner par chiffre d'affaires décroissant
                 ->get();
 
             $joursSemaine = collect(Carbon::now()->startOfWeek()->daysUntil(Carbon::now()->endOfWeek()))
@@ -208,36 +206,6 @@ class ChartController extends Controller
 
             $labels = $joursSemaine->keys()->map(fn($date) => Carbon::parse($date)->locale('fr')->isoFormat('dddd'))->toArray();
             $values = $joursSemaine->values()->toArray();
-
-            return [[
-                'labels' => $labels,
-                'values' => $values,
-            ]];
-        }
-
-
-        
-    public function VentesParMois(): array
-        {
-            $ventesParMois = \App\Models\Order::select(
-                    DB::raw('MONTH(created_at) as mois'),
-                    DB::raw('SUM(total_amount) as total_ventes')
-                )
-                ->whereYear('created_at', now()->year)
-                ->where('status', 'approved')
-                ->where('archived', '!=', 'oui')
-                ->groupBy(DB::raw('MONTH(created_at)'))
-                ->orderBy('mois')
-                ->get();
-
-            // Générer les labels des mois (en français)
-            $labels = [];
-            $values = [];
-            for ($i = 1; $i <= 12; $i++) {
-                $labels[] = \Carbon\Carbon::create()->month($i)->locale('fr')->isoFormat('MMMM');
-                $moisData = $ventesParMois->firstWhere('mois', $i);
-                $values[] = $moisData ? (float)$moisData->total_ventes : 0;
-            }
 
             return [[
                 'labels' => $labels,
