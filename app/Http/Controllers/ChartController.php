@@ -212,4 +212,32 @@ class ChartController extends Controller
                 'values' => $values,
             ]];
         }
+
+    public function VentesParMois(): array
+        {
+            $ventesParMois = \App\Models\Order::select(
+                    DB::raw('MONTH(created_at) as mois'),
+                    DB::raw('SUM(total_amount) as total_ventes')
+                )
+                ->whereYear('created_at', now()->year)
+                ->where('status', 'approved')
+                ->where('archived', '!=', 'oui')
+                ->groupBy(DB::raw('MONTH(created_at)'))
+                ->orderBy('mois')
+                ->get();
+
+            // Générer les labels des mois (en français)
+            $labels = [];
+            $values = [];
+            for ($i = 1; $i <= 12; $i++) {
+                $labels[] = \Carbon\Carbon::create()->month($i)->locale('fr')->isoFormat('MMMM');
+                $moisData = $ventesParMois->firstWhere('mois', $i);
+                $values[] = $moisData ? (float)$moisData->total_ventes : 0;
+            }
+
+            return [[
+                'labels' => $labels,
+                'values' => $values,
+            ]];
+        }
 }
