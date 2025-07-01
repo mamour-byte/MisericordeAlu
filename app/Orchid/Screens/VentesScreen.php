@@ -63,16 +63,16 @@ class VentesScreen extends Screen
                 ->sort()
                 ->render(fn(Order $order) => $order->user->name ?? 'Inconnu'),
 
-            TD::make('customer_name')
+            TD::make('customer_name','Client')
                 ->sort()
                 ->render(fn(Order $order) => $order->customer_name ?? 'Inconnu'),
 
-            TD::make('total_amount')
+            TD::make('total_amount','Montant')
                 ->sort()
                 ->render(fn(Order $order) => $order->total_amount),
 
 
-            TD::make('status')
+            TD::make('status', 'Statut')
                 ->sort()
                 ->render(function(Order $order) {
                     $color = match($order->status) {

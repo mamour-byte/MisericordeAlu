@@ -73,11 +73,9 @@
     <table>
         <thead>
             <tr>
-                <th>#</th>
+                <th>Numéro</th>
                 <th>Produit</th>
                 <th>Catégorie</th>
-                <th>Stock actuel</th>
-                <th>Stock minimum</th>
                 <th>Quantité à commander</th>
             </tr>
         </thead>
@@ -87,8 +85,6 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $product->name }}</td>
                     <td>{{ $product->category->name ?? 'N/A' }}</td>
-                    <td>{{ $product->calculated_stock }}</td>
-                    <td>{{ $product->stock_min }}</td>
                     <td>{{ max($product->stock_min * 2 - $product->calculated_stock, 1) }}</td>
                 </tr>
             @endforeach

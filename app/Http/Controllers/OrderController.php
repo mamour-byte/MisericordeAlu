@@ -14,7 +14,7 @@ use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 use Orchid\Support\Facades\Toast;
 use Illuminate\Support\Facades\Auth;
-use App\Services\NumberGenerator as NumberService;
+use App\Services\NumberGenerator ;
 
 class OrderController extends Controller
 {
@@ -39,8 +39,8 @@ class OrderController extends Controller
         }
 
         $documentType = $data['Docs'] ?? 'Invoice';
-        $documentNumber = NumberService::generateDocumentNumber($documentType);
-        $orderNumber = NumberService::generateOrderNumber();
+        $documentNumber = NumberGenerator::generateDocumentNumber($documentType);
+        $orderNumber = NumberGenerator::generateOrderNumber();
 
         if (count($productIds) !== count($quantities)) {
             Toast::error('Le nombre de produits ne correspond pas aux quantités.');

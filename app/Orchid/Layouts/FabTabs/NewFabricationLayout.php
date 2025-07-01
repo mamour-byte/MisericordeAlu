@@ -59,7 +59,7 @@ class NewFabricationLayout extends Rows
                     ->columns([
                         'Type'         => 'type',
                         'Largeur'      => 'width',
-                        'Hauteur'      => 'height',
+                        'Longeur'      => 'height',
                         'Prix m²'      => 'price_meter',
                         'Quantité'     => 'quantity',
                         'Note'         => 'note',

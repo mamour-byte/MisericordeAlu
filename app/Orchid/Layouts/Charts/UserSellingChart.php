@@ -27,4 +27,5 @@ class UserSellingChart extends Chart
      * @var string
      */
     protected $target = 'VendeursData';
+    protected $title = 'Vendeur ';
 }

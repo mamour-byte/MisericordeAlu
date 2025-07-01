@@ -12,6 +12,7 @@ use App\Orchid\Layouts\Charts\OrderChart;
 use App\Orchid\Layouts\Charts\UserSellingChart;
 use App\Orchid\Layouts\Charts\DocsChart;
 use App\Orchid\Layouts\Charts\MeilleursVendeursLayout;
+use App\Orchid\Layouts\Charts\VenteParMois;
 use App\Orchid\Layouts\OrderTabs\OrderLayout;
 use App\Models\Order;
 use Orchid\Screen\TD;
@@ -35,6 +36,7 @@ class PlatformScreen extends Screen
             $ventesSemaine = $chart->VentesSemaine();
             $meilleursVendeurs = $chart->MeilleursVendeurs();
             $venteParUser= $chart->VentesParUser();
+            $venteParMois = $chart->VentesParMois();
 
 
             $jours = $chart->TotalJour();
@@ -52,6 +54,7 @@ class PlatformScreen extends Screen
                 ],
                 'ProductData' => $ventesParProduit,
                 'OrderData'   => $ventesSemaine,
+                'VentesParMois' => $venteParMois,
 
                 'Commandes' => Order::with(['items.product'])
                                 ->where('archived', 'non')
@@ -117,26 +120,26 @@ class PlatformScreen extends Screen
             ]),
 
             
-            layout::columns([
+            Layout::columns([
                 MeilleursVendeursLayout::class,
                 UserSellingChart::class,
             ]),
 
             Layout::table('Commandes', [
                         TD::make('name', 'Boutique')
-                            ->render(fn($user) => $user->shop->name ?? 'Aucune'),
+                            ->render(fn(Order $order) => $order->user->shop->name ?? 'Aucune'),
 
                         TD::make('user.name','Vendeur')
                             ->sort()
                             ->render(fn(Order $order) => $order->user->name ?? 'Inconnu'),
                             
-                        TD::make('customer_name')
+                        TD::make('customer_name','Client')
                             ->sort()
                             ->render(fn(Order $order) => $order->customer_name ?? 'Inconnu'),
-                        TD::make('total_amount')
+                        TD::make('total_amount', 'Montant')
                             ->sort()
                             ->render(fn(Order $order) => $order->total_amount),
-                        TD::make('status')
+                        TD::make('status' , 'Statut')
                             ->sort()
                             ->render(function(Order $order) {
                                 $color = match($order->status) {
@@ -147,6 +150,8 @@ class PlatformScreen extends Screen
                                 return "<span class='{$color}'>{$order->status}</span>";
                             }),
                         ]),
+
+                        VenteParMois::class,
 
             
             

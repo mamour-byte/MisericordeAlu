@@ -13,6 +13,7 @@ use App\Orchid\Screens\VendeurDashboardScreen;
 use App\Orchid\Screens\FacturePreviewScreen;
 use App\Orchid\Screens\VentesScreen;
 use App\Orchid\Screens\StockScreen;
+use App\Orchid\Screens\MainRedirectScreen;
 
 use App\Orchid\Screens\Crud\EditCommandeScreen;
 use App\Orchid\Screens\FournisseursScreen;
@@ -23,7 +24,6 @@ use App\Orchid\Screens\Crud\AddFournisseursScreen;
 use App\Orchid\Screens\Crud\EditFournisseursScreen;
 use App\Orchid\Screens\Crud\AddShopScreen;
 use App\Orchid\Screens\Crud\EditShopScreen;
-use App\Orchid\Screens\Crud\AddBonScreen;
 use App\Orchid\Screens\Crud\AddCategorieProduits;
 
 use App\Orchid\Screens\Role\RoleEditScreen;
@@ -45,9 +45,15 @@ use Tabuna\Breadcrumbs\Trail;
 |
 */
 
+
 // Main
-Route::screen('/main', PlatformScreen::class)
-    ->name('platform.main');
+Route::screen('/main', MainRedirectScreen::class)->name('platform.main');
+
+// Dashboard admin (pour les autres rôles)
+Route::screen('/admin-main', PlatformScreen::class)
+    ->name('platform.main.admin');
+
+
 
 // Platform > Index
 Route::screen('Dashbord', VendeurDashboardScreen::class)
@@ -132,10 +138,6 @@ Route::screen('Fournisseurs/editFournisseurs/{supplier}', editFournisseursScreen
         ->parent('platform.Fournisseurs')
         ->push(__('Edit Fournisseur'), route('platform.Fournisseurs.editFournisseurs', $id)));
 
-
-// Platform > Bon de Commande
-Route::screen('Fournisseurs/addBonCommande', AddBonScreen::class)
-    ->name('platform.Fournisseurs.addBonCommande');
 
 
 // Platform > Fabrication

@@ -40,4 +40,10 @@ class OrderChart extends Chart
      * @var string
      */
     protected $target = 'OrderData';
+    /**
+     * The chart title.
+     *
+     * @var string
+     */
+    protected $title = 'Ventes de la semaine';
 }
