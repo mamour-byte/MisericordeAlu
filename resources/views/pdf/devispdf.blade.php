@@ -135,7 +135,7 @@
             <td class="value">{{ number_format($taxAmount, 2, ',', ' ') }} F CFA</td>
         </tr> -->
         <tr>
-            <td class="label"><strong>Total TTC</strong></td>
+            <td class="label"><strong>Total</strong></td>
             <td class="value"><strong>{{ number_format($totalAmount, 2, ',', ' ') }} F CFA</strong></td>
         </tr>
     </table>

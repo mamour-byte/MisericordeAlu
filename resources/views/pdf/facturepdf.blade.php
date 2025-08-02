@@ -107,7 +107,7 @@
                 <th>Produit</th>
                 <th>Quantité</th>
                 <th>Prix unitaire (F CFA)</th>
-                <th>Total ligne (F CFA)</th>
+                <th>Total (F CFA)</th>
             </tr>
         </thead>
         <tbody>
