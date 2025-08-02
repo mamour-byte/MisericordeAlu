@@ -141,8 +141,8 @@
 
     <footer>
         <div class="footer">
-            Misericorde Alu - CN Brazzaville - 13500 Bongo<br>
-            Tél: 33 XXX XX XX - Email: services@misericordealu.com - SIRET: XXX XXX XXX XX<br>
+            Misericorde Alu - CONGO Brazzaville -<br>
+            Tél: +224 069 692 911 / 044 692 909  - Email: contact@misericorde-alu.com <br>
             Merci pour votre confiance.
         </div>
     </footer>

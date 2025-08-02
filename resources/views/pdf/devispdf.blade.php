@@ -83,10 +83,10 @@
 
     <div class="company">
         <strong>Misericorde Alu</strong><br>
-        123 Rue Du savoir<br>
-        13500 Brazzaville<br>
-        Tél: 01 23 45 67 89<br>
-        Email: contact@misericordealu.com
+        CONGO Brazzaville<br>
+        Tél: +224 069 692 911 / 044 692 909 <br>
+        Tél: 050 375 263 <br>
+        Email: contact@misericorde-alu.com
     </div>
 
     <div class="client">
@@ -144,8 +144,8 @@
 
     <footer>
         <div class="footer">
-            Misericorde Alu - CN Brazzaville - 13500 Bongo<br>
-            Tél: 33 XXX XX XX - Email: services@misericordealu.com - SIRET: XXX XXX XXX XX<br>
+            Misericorde Alu - CONGO Brazzaville -<br>
+            Tél: +224 069 692 911 / 044 692 909  - Email: contact@misericorde-alu.com <br>
             Merci pour votre confiance.
         </div>
     </footer>
