@@ -82,8 +82,8 @@ class EditProductScreen extends Screen
                     ->type('number')
                     ->required(),
 
-                Relation::make('product.subcategory_id')
-                    ->title('Sous-catégorie')
+                Relation::make('product.categorie_id')
+                    ->title('Catégorie')
                     ->fromModel(Category::class, 'name')
                     ->required(),
             ]),
@@ -101,7 +101,25 @@ class EditProductScreen extends Screen
         // On retrouve le bon produit par ID
         $product = Product::findOrFail($data['id']);
 
+        // Vérifier si la quantité en stock a changé
+        $oldStock = $product->stock_quantity;
+        $newStock = $data['stock_quantity'] ?? $oldStock;
+
         $product->update($data);
+
+        // Si la quantité a changé, créer un mouvement de stock
+        if ($newStock != $oldStock) {
+            $diff = $newStock - $oldStock;
+            $type = $diff > 0 ? \App\Models\StockMovement::TYPE_ENTRY : \App\Models\StockMovement::TYPE_EXIT;
+
+            \App\Models\StockMovement::create([
+                'product_id' => $product->id,
+                'shop_id' => $product->shop_id,
+                'type' => $type,
+                'quantity' => abs($diff),
+                'notes' => 'Ajustement manuel via édition du produit',
+            ]);
+        }
 
         Alert::info('Produit mis à jour avec succès.');
 
