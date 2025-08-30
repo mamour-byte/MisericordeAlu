@@ -72,10 +72,15 @@ class EditProductScreen extends Screen
                     ->type('number')
                     ->required(),
 
-                Input::make('product.stock_quantity')
-                    ->title('Quantité en stock')
+                Input::make('product.stock_quantity_change')
+                    ->title('Quantité à ajouter ou retirer (peut être négatif)')
                     ->type('number')
-                    ->required(),
+                    ->help('Le stock actuel est affiché ci-dessous. Saisissez une valeur positive pour ajouter, négative pour retirer.'),
+
+                // Input::make('product.stock_quantity')
+                //     ->title('Stock actuel')
+                //     ->type('number')
+                //     ->readonly(),
 
                 Input::make('product.stock_min')
                     ->title("Seuil d'alerte")
@@ -101,22 +106,24 @@ class EditProductScreen extends Screen
         // On retrouve le bon produit par ID
         $product = Product::findOrFail($data['id']);
 
-        // Vérifier si la quantité en stock a changé
         $oldStock = $product->stock_quantity;
-        $newStock = $data['stock_quantity'] ?? $oldStock;
+        $change = isset($data['stock_quantity_change']) ? (int)$data['stock_quantity_change'] : 0;
+        $newStock = $oldStock + $change;
+
+        // Met à jour la quantité totale dans le tableau
+        $data['stock_quantity'] = $newStock;
 
         $product->update($data);
 
         // Si la quantité a changé, créer un mouvement de stock
-        if ($newStock != $oldStock) {
-            $diff = $newStock - $oldStock;
-            $type = $diff > 0 ? \App\Models\StockMovement::TYPE_ENTRY : \App\Models\StockMovement::TYPE_EXIT;
+        if ($change !== 0) {
+            $type = $change > 0 ? \App\Models\StockMovement::TYPE_ENTRY : \App\Models\StockMovement::TYPE_EXIT;
 
             \App\Models\StockMovement::create([
                 'product_id' => $product->id,
                 'shop_id' => $product->shop_id,
                 'type' => $type,
-                'quantity' => abs($diff),
+                'quantity' => abs($change),
                 'notes' => 'Ajustement manuel via édition du produit',
             ]);
         }
