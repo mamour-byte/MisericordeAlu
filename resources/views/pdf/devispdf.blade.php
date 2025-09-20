@@ -84,8 +84,8 @@
     <div class="company">
         <strong>Misericorde Alu</strong><br>
         CONGO Brazzaville<br>
-        Tél: +224 069 692 911 / 044 692 909 <br>
-        Tél: 050 375 263 <br>
+        Tél: +242 069 692 911 / 044 692 909 <br>
+        Tél: 056 853 316 <br>
         Email: contact@misericorde-alu.com
     </div>
 
