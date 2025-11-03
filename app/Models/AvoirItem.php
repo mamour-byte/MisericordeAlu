@@ -12,6 +12,11 @@ class AvoirItem extends Model
         'avoir_id', 'product_id', 'quantity', 'unit_price','no_order','no_avoir'
     ];
 
+    protected $casts = [
+        'quantity' => 'float',
+        'unit_price' => 'float',
+    ];
+
     public function avoir()
     {
         return $this->belongsTo(Avoir::class);
@@ -23,6 +28,6 @@ class AvoirItem extends Model
     }
     public function getTotalPriceAttribute()
     {
-        return $this->quantity * $this->price;
+        return $this->quantity * $this->unit_price;
     }
 }

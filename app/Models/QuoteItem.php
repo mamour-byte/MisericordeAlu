@@ -14,6 +14,11 @@ class QuoteItem extends Model
         'no_quote'
     ];
 
+    protected $casts = [
+        'quantity' => 'float',
+        'unit_price' => 'float',
+    ];
+
     public function quote()
     {
         return $this->belongsTo(Quote::class);

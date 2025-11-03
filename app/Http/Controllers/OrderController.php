@@ -68,7 +68,8 @@ class OrderController extends Controller
 
             foreach ($productIds as $key => $productId) {
                 $product = Product::findOrFail($productId);
-                $quantity = (int) ($quantities[$key] ?? 0);
+                // Allow decimal quantities (e.g. 0.5)
+                $quantity = (float) ($quantities[$key] ?? 0);
                 $unit_price = (float) $product->price;
                 $item_total = $quantity * $unit_price;
 
@@ -111,9 +112,14 @@ class OrderController extends Controller
                 $order->save();
 
                 foreach ($items as $item) {
-                    $item['invoice_id'] = $invoice->id;
-                    $item['no_invoice'] = $documentNumber;
-                    InvoiceItem::create($item);
+                    // Ensure quantities and prices are saved with correct types/precision
+                    InvoiceItem::create([
+                        'invoice_id' => $invoice->id,
+                        'no_invoice' => $documentNumber,
+                        'product_id' => $item['product_id'],
+                        'quantity'   => (float) $item['quantity'],
+                        'unit_price' => number_format((float) $item['unit_price'], 2, '.', ''),
+                    ]);
 
                     // Mouvement de stock
                     StockMovement::create([
@@ -121,7 +127,7 @@ class OrderController extends Controller
                         'order_id'   => $order->id,
                         'shop_id'    => $shop->id,
                         'type'       => StockMovement::TYPE_EXIT,
-                        'quantity'   => $item['quantity'],
+                        'quantity'   => $item['quantity'], // may be decimal
                         'notes'      => 'Vente générée par commande #' . $order->id,
                     ]);
                 }
@@ -142,9 +148,14 @@ class OrderController extends Controller
                 $order->save();
 
                 foreach ($items as $item) {
-                    $item['quote_id'] = $quote->id;
-                    $item['no_quote'] = $documentNumber;
-                    QuoteItem::create($item);
+                    // Ensure quantities/prices are stored correctly on quote
+                    QuoteItem::create([
+                        'quote_id' => $quote->id,
+                        'no_quote' => $documentNumber,
+                        'product_id' => $item['product_id'],
+                        'quantity'   => (float) $item['quantity'],
+                        'unit_price' => number_format((float) $item['unit_price'], 2, '.', ''),
+                    ]);
                 }
             }
 

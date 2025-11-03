@@ -19,6 +19,10 @@ class ProductListLayout extends Table
     protected $empty = 'Aucun produit enregistré pour le moment.';
     
     protected $target = 'products';
+    /**
+     * Toggle the visibility of the progress bar. Set to false to hide it.
+     */
+    protected $showProgressBar = true;
 
     protected function columns(): iterable
     {
@@ -41,7 +45,7 @@ class ProductListLayout extends Table
                 }),
 
 
-            TD::make('stockMovements', 'Ventes / Stock')
+            TD::make('stockMovements', 'Stock')
                 ->render(function (Product $product) {
                     $user = Auth::user();
                     $shop = $user->shop;
@@ -50,23 +54,88 @@ class ProductListLayout extends Table
                         return '<div class="text-muted">Pas de boutique liée</div>';
                     }
 
-                    $entries = $product->stockMovements
-                        ->where('shop_id', $shop->id)
-                        ->where('type', 'entry');
+                    // Priorité au stock courant enregistré dans products (mis à jour par StockMovement hooks)
+                    $currentStock = $product->stock_quantity;
 
-                    $exits = $product->stockMovements
-                        ->where('shop_id', $shop->id)
-                        ->where('type', 'exit');
-
-                    $totalEntree = $entries->sum('quantity');
-                    $totalSortie = $exits->sum('quantity');
-
-                    if ($totalEntree === 0) {
-                        return '<div class="text-muted">Aucun stock enregistré</div>';
+                    if ((float) $currentStock <= 0) {
+                        return '<div class="text-muted">Aucun stock</div>';
                     }
 
-                    $pourcentage = round(($totalSortie / $totalEntree) * 100);
+                    // Si la progression est désactivée, n'affiche que le label
+                    if (! $this->showProgressBar) {
+                        $stockLabelOnly = "{$currentStock} en stock";
+                        return "<div><strong>{$stockLabelOnly}</strong></div>";
+                    }
 
+                    // Récupérer le dernier mouvement d'entrée pour ce produit / boutique
+                    $lastEntry = $product->stockMovements()
+                        ->where('shop_id', $shop->id)
+                        ->where('type', 'entry')
+                        ->orderByDesc('created_at')
+                        ->first();
+
+                    // Si pas d'entrée trouvée (rare si stock > 0), on tombe back au calcul global
+                    if (! $lastEntry) {
+                        $totalEntree = $product->stockMovements()
+                            ->where('shop_id', $shop->id)
+                            ->where('type', 'entry')
+                            ->sum('quantity');
+
+                        $totalSortie = $product->stockMovements()
+                            ->where('shop_id', $shop->id)
+                            ->where('type', 'exit')
+                            ->sum('quantity');
+
+                        $pourcentage = $totalEntree > 0 ? round(($totalSortie / $totalEntree) * 100) : 0;
+                    } else {
+                        // Calculer le stock AVANT le dernier réapprovisionnement
+                        $entriesBefore = $product->stockMovements()
+                            ->where('shop_id', $shop->id)
+                            ->where('type', 'entry')
+                            ->where('created_at', '<', $lastEntry->created_at)
+                            ->sum('quantity');
+
+                        $exitsBefore = $product->stockMovements()
+                            ->where('shop_id', $shop->id)
+                            ->where('type', 'exit')
+                            ->where('created_at', '<', $lastEntry->created_at)
+                            ->sum('quantity');
+
+                        $stockBeforeLastEntry = (float) ($entriesBefore - $exitsBefore);
+
+                        if ($stockBeforeLastEntry <= 0) {
+                            // C'est un vrai réapprovisionnement après rupture : baseline = quantité entrée
+                            $baseline = (float) $lastEntry->quantity;
+
+                            $exitsSince = $product->stockMovements()
+                                ->where('shop_id', $shop->id)
+                                ->where('type', 'exit')
+                                ->where('created_at', '>=', $lastEntry->created_at)
+                                ->sum('quantity');
+
+                            $pourcentage = $baseline > 0 ? round(($exitsSince / $baseline) * 100) : 0;
+                        } else {
+                            // Il restait du stock au moment du réapprovisionnement -> ne pas considérer
+                            // uniquement la dernière entrée comme baseline (évite remise à 0 trompeuse).
+                            // On retombe sur le calcul global (toutes entrées vs toutes sorties).
+                            $totalEntree = $product->stockMovements()
+                                ->where('shop_id', $shop->id)
+                                ->where('type', 'entry')
+                                ->sum('quantity');
+
+                            $totalSortie = $product->stockMovements()
+                                ->where('shop_id', $shop->id)
+                                ->where('type', 'exit')
+                                ->sum('quantity');
+
+                            $pourcentage = $totalEntree > 0 ? round(($totalSortie / $totalEntree) * 100) : 0;
+                        }
+                    }
+
+                    // Clamp percent
+                    $pourcentage = max(0, min(100, $pourcentage));
+
+                    // Couleur selon le pourcentage
                     $couleur = 'bg-success';
                     if ($pourcentage >= 95) {
                         $couleur = 'bg-danger';
@@ -74,19 +143,23 @@ class ProductListLayout extends Table
                         $couleur = 'bg-warning';
                     }
 
-                    $bar = <<<HTML
+                    // Affiche stock actuel + barre de progression
+                    // Format the stock label to avoid trailing zeros for whole numbers
+                    $formattedStock = number_format($currentStock, 2, '.', '');
+                    $formattedStock = rtrim(rtrim($formattedStock, '0'), '.');
+                    $stockLabel = $currentStock >= 0 ? "{$formattedStock} en stock" : "0 en stock";
+
+                    return <<<HTML
                         <div>
                             <div class="small mb-1">
-                                Vendu : {$totalSortie} / {$totalEntree} 
-                                <span class="float-right">{$pourcentage}%</span>
+                                <strong>{$stockLabel}</strong>
+                                <span class="float-right">{$pourcentage}% vendu</span>
                             </div>
                             <div class="progress" style="height: 10px;">
                                 <div class="progress-bar {$couleur}" role="progressbar" style="width: {$pourcentage}%;" aria-valuenow="{$pourcentage}" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>
                     HTML;
-
-                    return $bar;
                 })
                 ->width('250px')
                 ->cantHide(),

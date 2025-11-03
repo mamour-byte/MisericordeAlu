@@ -79,6 +79,7 @@ class AddProductScreen extends Screen
 
                 Input::make('product.stock_quantity')
                     ->title('Quantité en stock')
+                    ->step(0.01)
                     ->required(),
 
                 Input::make('product.stock_min')

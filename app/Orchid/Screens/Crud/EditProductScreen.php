@@ -75,6 +75,7 @@ class EditProductScreen extends Screen
                 Input::make('product.stock_quantity_change')
                     ->title('Quantité à ajouter ou retirer (peut être négatif)')
                     ->type('number')
+                    ->step(0.01)
                     ->help('Le stock actuel est affiché ci-dessous. Saisissez une valeur positive pour ajouter, négative pour retirer.'),
 
                 // Input::make('product.stock_quantity')
@@ -107,7 +108,7 @@ class EditProductScreen extends Screen
         $product = Product::findOrFail($data['id']);
 
         $oldStock = $product->stock_quantity;
-        $change = isset($data['stock_quantity_change']) ? (int)$data['stock_quantity_change'] : 0;
+    $change = isset($data['stock_quantity_change']) ? (float)$data['stock_quantity_change'] : 0;
         $newStock = $oldStock + $change;
 
         // Met à jour la quantité totale dans le tableau

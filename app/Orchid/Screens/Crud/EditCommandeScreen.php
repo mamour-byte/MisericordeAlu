@@ -112,7 +112,7 @@ class EditCommandeScreen extends Screen
                             ->title('Quantités')
                             ->type('text')
                             ->required()
-                            ->help('Format: 1,2,3'),
+                            ->help('Format: 1,2,3 ou 1,0.5,2.5 — les quantités décimales sont acceptées'),
 
                     ]),
 
@@ -192,7 +192,7 @@ class EditCommandeScreen extends Screen
 
             foreach ($products as $index => $productId) {
                 $product = Product::findOrFail($productId);
-                $quantity = (int)$quantities[$index];
+                $quantity = (float)$quantities[$index];
                 $unit_price = (float)$product->price;
                 $item_total = $quantity * $unit_price;
 

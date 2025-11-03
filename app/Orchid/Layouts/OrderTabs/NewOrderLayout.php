@@ -65,7 +65,7 @@ class NewOrderLayout extends Rows
                         ->title('Quantités')
                         ->type('text')
                         ->required()
-                        ->help('Format: 1,2,3 (une quantité par produit)'),
+                        ->help('Format: 1,2,3 ou 1,0.5,2.5 — les quantités décimales (ex: 0.5) sont acceptées'),
                      ]),
 
                     Select::make('order.Docs')

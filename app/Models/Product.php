@@ -20,6 +20,12 @@ class Product extends Model
         'shop_id',
     ];
 
+    protected $casts = [
+        'price' => 'float',
+        'stock_quantity' => 'float',
+        'stock_min' => 'float',
+    ];
+
     public function category()
     {
         return $this->belongsTo(Category::class, 'categorie_id');
