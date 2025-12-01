@@ -30,10 +30,15 @@ class FacturePdfController extends Controller
         });
 
         $taxRate = 18;
-        $factureTvaIncluse = $order->invoices->tva ?? false; 
+        $factureTvaIncluse = $order->invoice?->tva ?? false;
 
-        $taxAmount = $factureTvaIncluse ? $subtotal * ($taxRate / 100) : 0;
-        $totalAmount = $subtotal + $taxAmount;
+        $remise = (float) ($order->remise ?? 0);
+
+        // Apply remise (discount) before tax
+        $subtotalAfterRemise = max(0, $subtotal - $remise);
+
+        $taxAmount = $factureTvaIncluse ? $subtotalAfterRemise * ($taxRate / 100) : 0;
+        $totalAmount = $subtotalAfterRemise + $taxAmount;
 
         $tva_status = $factureTvaIncluse ? 'TVA incluse' : 'TVA non incluse';
 
@@ -51,8 +56,8 @@ class FacturePdfController extends Controller
 
         $pdfData = [
             'numero_Doc' => $numero_Doc ?? '-',
-            'date_facture' => $order->facture->created_at ?? now()->format('Y-m-d'),
-            'date_echeance' => $order->facture->date_echeance ?? now()->addDays(30)->format('Y-m-d'),
+            'date_facture' => $order->invoice?->created_at?->format('Y-m-d') ?? $order->created_at->format('Y-m-d'),
+            'date_echeance' => $order->invoice?->date_echeance ?? now()->addDays(30)->format('Y-m-d'),
 
             'client_nom' => $order->customer_name ?? '',
             'client_adresse' => $order->customer_address?? '',
@@ -61,12 +66,14 @@ class FacturePdfController extends Controller
 
             'produits' => $produitsArray,
             'subtotal' => $subtotal,
+            'remise' => $remise,
+            'subtotal_after_remise' => $subtotalAfterRemise,
             'taxRate' => $taxRate,
             'taxAmount' => $taxAmount,
             'totalAmount' => $totalAmount,
             'tva_status' => $tva_status,
 
-            'type_document' => $type_document, 
+            'type_document' => $type_document,
         ];
 
         $pdf = PDF::loadView('pdf.facturepdf', $pdfData);

@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Orchid\Screens;
-
 use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Layout;
 use App\Models\Product;
 use App\Orchid\Layouts\ProductListLayout;
 use Orchid\Screen\Actions\Button;
@@ -33,10 +33,20 @@ class ProductScreen extends Screen
                     'Commandes' => collect(), 
                 ];
             }
+            $q = request('q');
+
+            $productsQuery = Product::with('stockMovements')
+                ->where('shop_id', $shop->id)
+                ->when($q, function ($query, $q) {
+                    $like = "%{$q}%";
+                    $query->where(function ($sub) use ($like) {
+                        $sub->where('name', 'like', $like)
+                            ->orWhere('description', 'like', $like);
+                    });
+                });
+
             return [
-                'products' => Product::with('stockMovements')
-                    ->where('shop_id', $shop->id)
-                    ->paginate(15),
+                'products' => $productsQuery->paginate(15),
             ];
         }
 

@@ -68,6 +68,14 @@ class NewOrderLayout extends Rows
                         ->help('Format: 1,2,3 ou 1,0.5,2.5 — les quantités décimales (ex: 0.5) sont acceptées'),
                      ]),
 
+                Group::make([
+
+                    Input::make('order.remise') 
+                        ->title('Remise')
+                        ->type('number')
+                        ->help('Ajouter des remises aux factures (ex: 5000)')
+                        ->step('0.01'),
+
                     Select::make('order.Docs')
                         ->title('Statut')
                         ->options([
@@ -75,6 +83,8 @@ class NewOrderLayout extends Rows
                             'Invoice' => 'Facture',
                         ])
                         ->empty('Sélectionnez un statut'),
+
+                    ]),
 
                     Button::make('Nouvelle Vente')
                         ->method('save')

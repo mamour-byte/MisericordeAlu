@@ -52,6 +52,9 @@ class OrderController extends Controller
         try {
             $total = 0;
 
+            // Récupérer la remise envoyée (si présente)
+            $remise = isset($data['remise']) ? (float) $data['remise'] : 0;
+
             // Création de la commande
             $order = Order::create([
                 'customer_name'    => $data['customer_name'],
@@ -60,6 +63,7 @@ class OrderController extends Controller
                 'customer_address' => $data['customer_address'],
                 'status'           => $documentType === 'Invoice' ? 'approved' : 'pending',
                 'total_amount'     => 0,
+                'remise'           => $remise,
                 'user_id'          => Auth::id(),
                 'shop_id'          => $shop->id,
             ]);
@@ -91,18 +95,19 @@ class OrderController extends Controller
                 ];
             }
 
-            // Mise à jour du montant total
-            $order->update(['total_amount' => $total]);
+            // Mise à jour du montant total (subtotal avant remise)
+            $order->update(['total_amount' => $total, 'remise' => $remise]);
 
             // Création du document et liaison avec la commande
             if ($documentType === 'Invoice') {
+                // Le total de la facture prend en compte la remise
                 $invoice = Invoice::create([
                     'customer_name'    => $data['customer_name'],
                     'customer_email'   => $data['customer_email'],
                     'customer_phone'   => $data['customer_phone'],
                     'customer_address' => $data['customer_address'],
                     'status'           => 'approved',
-                    'total_amount'     => $total,
+                    'total_amount'     => max(0, $total - $remise),
                     'user_id'          => Auth::id(),
                     'shop_id'          => $shop->id,
                 ]);
@@ -127,18 +132,19 @@ class OrderController extends Controller
                         'order_id'   => $order->id,
                         'shop_id'    => $shop->id,
                         'type'       => StockMovement::TYPE_EXIT,
-                        'quantity'   => $item['quantity'], // may be decimal
+                        'quantity'   => $item['quantity'], 
                         'notes'      => 'Vente générée par commande #' . $order->id,
                     ]);
                 }
             } else {
+                // Le total du devis prend en compte la remise
                 $quote = Quote::create([
                     'customer_name'    => $data['customer_name'],
                     'customer_email'   => $data['customer_email'],
                     'customer_phone'   => $data['customer_phone'],
                     'customer_address' => $data['customer_address'],
                     'status'           => 'pending',
-                    'total_amount'     => $total,
+                    'total_amount'     => max(0, $total - $remise),
                     'user_id'          => Auth::id(),
                     'shop_id'          => $shop->id,
                 ]);

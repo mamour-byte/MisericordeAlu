@@ -127,10 +127,10 @@
             <td class="label"><strong>Sous-total (HT)</strong></td>
             <td class="value">{{ number_format($subtotal, 2, ',', ' ') }} F CFA</td>
         </tr> -->
-        <!-- <tr>
-            <td class="label"><strong>TVA ({{ $taxRate }}%)</strong></td>
-            <td class="value">{{ number_format($taxAmount, 2, ',', ' ') }} F CFA</td>
-        </tr> -->
+        <tr>
+            <td class="label"><strong>Remise</strong></td>
+            <td class="value">{{ number_format($remise, 2, ',', ' ') }} F CFA</td>
+        </tr>
         <tr>
             <td class="label"><strong>Total TTC</strong></td>
             <td class="value"><strong>{{ number_format($totalAmount, 2, ',', ' ') }} F CFA</strong></td>
