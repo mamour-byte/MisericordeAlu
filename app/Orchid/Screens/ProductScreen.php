@@ -5,6 +5,7 @@ use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Layout;
 use App\Models\Product;
 use App\Orchid\Layouts\ProductListLayout;
+use App\Orchid\Layouts\ProductFilterLayout;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\DropDown;
@@ -33,17 +34,9 @@ class ProductScreen extends Screen
                     'Commandes' => collect(), 
                 ];
             }
-            $q = request('q');
-
             $productsQuery = Product::with('stockMovements')
                 ->where('shop_id', $shop->id)
-                ->when($q, function ($query, $q) {
-                    $like = "%{$q}%";
-                    $query->where(function ($sub) use ($like) {
-                        $sub->where('name', 'like', $like)
-                            ->orWhere('description', 'like', $like);
-                    });
-                });
+                ->filters(ProductFilterLayout::class);
 
             return [
                 'products' => $productsQuery->paginate(15),
@@ -87,6 +80,7 @@ class ProductScreen extends Screen
     public function layout(): iterable
     {
         return [
+            ProductFilterLayout::class,
             ProductListLayout::class,
         ];
     }

@@ -37,9 +37,15 @@ class CommandesScreen extends Screen
             if (!$user->shop) {
                 Toast::error("Aucun magasin ne vous a été attribué. Veuillez contacter l'administrateur.");
                 return [
-                    'Commandes' => collect(), 
+                    'Commandes' => collect(),
+                    'productPrices' => [],
                 ];
             }
+
+            $productPrices = Product::where('shop_id', $user->shop->id)
+                ->pluck('price', 'id')
+                ->map(fn ($p) => (float) $p)
+                ->toArray();
 
             return [
                 'Commandes' => Order::with(['items.product'])
@@ -47,6 +53,7 @@ class CommandesScreen extends Screen
                     ->where('archived', 'non')
                     ->latest()
                     ->paginate(10),
+                'productPrices' => $productPrices,
             ];
         }
 
@@ -75,9 +82,12 @@ class CommandesScreen extends Screen
     {
         return [
             Layout::tabs([
-                'Nouvelle Vente' => [NewOrderLayout::class,],
+                'Nouvelle Vente' => [
+                    Layout::view('orchid.order-total-preview'),
+                    NewOrderLayout::class,
+                ],
                 'Historique' => [OrderLayout::class,],
-                ],)
+            ]),
         ];
     }
 

@@ -12,16 +12,67 @@ use App\Models\Quote;
 use App\Models\QuoteItem;
 use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Orchid\Support\Facades\Toast;
 use Illuminate\Support\Facades\Auth;
-use App\Services\NumberGenerator ;
+use App\Services\NumberGenerator;
 
 class OrderController extends Controller
 {
-    
+    /**
+     * Validation rules for storing an order.
+     */
+    protected function validationRules(): array
+    {
+        return [
+            'order.customer_name' => 'required|string|max:255',
+            'order.customer_email' => 'nullable|email|max:255',
+            'order.customer_phone' => 'nullable|string|max:50',
+            'order.customer_address' => 'nullable|string|max:500',
+            'order.products' => 'required|array|min:1',
+            'order.products.*' => 'required|integer|exists:products,id',
+            'order.quantities' => 'required',
+            'order.Docs' => 'required|in:Invoice,Quote',
+            'order.remise' => 'nullable|numeric|min:0',
+        ];
+    }
 
+    /**
+     * Validation messages in French.
+     */
+    protected function validationMessages(): array
+    {
+        return [
+            'order.customer_name.required' => 'Le nom du client est obligatoire.',
+            'order.customer_email.email' => 'L\'adresse email n\'est pas valide.',
+            'order.products.required' => 'Veuillez sélectionner au moins un produit.',
+            'order.products.min' => 'Veuillez sélectionner au moins un produit.',
+            'order.products.*.exists' => 'Un des produits sélectionnés n\'existe pas.',
+            'order.quantities.required' => 'Les quantités sont obligatoires.',
+            'order.Docs.required' => 'Veuillez sélectionner un type de document.',
+            'order.Docs.in' => 'Le type de document doit être Facture ou Devis.',
+            'order.remise.numeric' => 'La remise doit être un nombre.',
+            'order.remise.min' => 'La remise ne peut pas être négative.',
+        ];
+    }
+
+    /**
+     * Store a new order with its items and associated invoice/quote.
+     *
+     * @param Request $request The request containing order data
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function save(Request $request)
     {
+        // Validate the request
+        $validator = Validator::make($request->all(), $this->validationRules(), $this->validationMessages());
+        
+        if ($validator->fails()) {
+            $firstError = $validator->errors()->first();
+            Toast::error($firstError);
+            return redirect()->back()->withInput();
+        }
+
         $data = $request->get('order');
         $productIds = $data['products'] ?? [];
         $quantities = $data['quantities'] ?? [];
@@ -29,11 +80,13 @@ class OrderController extends Controller
         $user = Auth::user();
         $shop = $user->shop;
 
+        // Authorization is handled by StoreOrderRequest, but double-check
         if (!$shop) {
             Toast::error("Aucune boutique n'est assignée à ce gérant.");
             return redirect()->back();
         }
 
+        // Quantities are already parsed by the Form Request
         if (is_string($quantities)) {
             $quantities = explode(',', $quantities);
         }
@@ -54,6 +107,29 @@ class OrderController extends Controller
 
             // Récupérer la remise envoyée (si présente)
             $remise = isset($data['remise']) ? (float) $data['remise'] : 0;
+
+            // Validation du stock disponible (uniquement pour les factures)
+            if ($documentType === 'Invoice') {
+                foreach ($productIds as $key => $productId) {
+                    $product = Product::findOrFail($productId);
+                    $quantity = (float) ($quantities[$key] ?? 0);
+                    
+                    // Vérifier que le produit appartient à la boutique
+                    if ($product->shop_id !== $shop->id) {
+                        DB::rollBack();
+                        Toast::error("Le produit '{$product->name}' n'appartient pas à votre boutique.");
+                        return redirect()->back();
+                    }
+                    
+                    // Vérifier le stock disponible
+                    if ($product->stock_quantity < $quantity) {
+                        DB::rollBack();
+                        $stockDisponible = number_format($product->stock_quantity, 2, ',', ' ');
+                        Toast::error("Stock insuffisant pour '{$product->name}'. Stock disponible : {$stockDisponible}");
+                        return redirect()->back();
+                    }
+                }
+            }
 
             // Création de la commande
             $order = Order::create([
@@ -170,7 +246,13 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
             report($e);
-            Toast::error("Une erreur est survenue : " . $e->getMessage());
+            
+            // Masquer les détails techniques en production
+            $message = app()->environment('local') 
+                ? "Une erreur est survenue : " . $e->getMessage()
+                : "Une erreur est survenue lors de l'enregistrement. Veuillez réessayer.";
+            
+            Toast::error($message);
         }
 
         return redirect()->route('platform.Commandes');

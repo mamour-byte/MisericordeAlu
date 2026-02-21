@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Quote extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'customer_name',
         'customer_email',
@@ -14,6 +16,7 @@ class Quote extends Model
         'status',
         'total_amount',
         'shop_id',
+        'user_id',
     ];
 
     public function items()
@@ -21,4 +24,18 @@ class Quote extends Model
         return $this->hasMany(QuoteItem::class);
     }
 
+    public function shop()
+    {
+        return $this->belongsTo(Shop::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

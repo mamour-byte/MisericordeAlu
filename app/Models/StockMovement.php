@@ -3,8 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Product;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * StockMovement Model
+ *
+ * Represents a stock movement (entry or exit) for a product.
+ * The product's stock_quantity is automatically recalculated when
+ * movements are created, updated, or deleted.
+ *
+ * @property int $id
+ * @property int $product_id
+ * @property int $shop_id
+ * @property int|null $order_id
+ * @property string $type (entry, exit)
+ * @property float $quantity
+ * @property string|null $notes
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ */
 class StockMovement extends Model
 {
     protected $fillable = [
@@ -20,20 +37,32 @@ class StockMovement extends Model
         'quantity' => 'float',
     ];
 
-    const TYPE_ENTRY = 'entry';
-    const TYPE_EXIT = 'exit';
+    /** Stock entry (increase) */
+    public const TYPE_ENTRY = 'entry';
+    
+    /** Stock exit (decrease) */
+    public const TYPE_EXIT = 'exit';
 
-    public function shop()
+    /**
+     * Get the shop where this movement occurred.
+     */
+    public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);
     }
 
-    public function product()
+    /**
+     * Get the product associated with this movement.
+     */
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    public function order()
+    /**
+     * Get the order that triggered this movement (if any).
+     */
+    public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class, 'order_id');
     }
