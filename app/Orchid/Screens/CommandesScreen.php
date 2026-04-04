@@ -52,7 +52,7 @@ class CommandesScreen extends Screen
                     ->where('user_id', $user->id)
                     ->where('archived', 'non')
                     ->latest()
-                    ->paginate(10),
+                    ->paginate(20),
                 'productPrices' => $productPrices,
             ];
         }
