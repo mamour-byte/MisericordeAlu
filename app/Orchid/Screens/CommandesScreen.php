@@ -86,7 +86,10 @@ class CommandesScreen extends Screen
                     Layout::view('orchid.order-total-preview'),
                     NewOrderLayout::class,
                 ],
-                'Historique' => [OrderLayout::class,],
+                'Historique' => [
+                    \App\Orchid\Filters\CommandesFilter::class,
+                    OrderLayout::class,
+                ],
             ]),
         ];
     }
