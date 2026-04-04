@@ -13,7 +13,7 @@ use Orchid\Support\Facades\Alert;
 use App\Http\Controllers\OrderController;
 use App\Orchid\Layouts\OrderTabs\OrderLayout;
 use App\Orchid\Layouts\OrderTabs\NewOrderLayout;
-use App\Orchid\Filters\OrderFilterLayout;
+use App\Orchid\Layouts\OrderTabs\OrderFilterLayout;
 use Orchid\Support\Facades\Toast;
 
 
@@ -48,7 +48,8 @@ class CommandesScreen extends Screen
                 ->toArray();
 
             return [
-                'Commandes' => Order::with(['items.product'])
+                'Commandes' => Order::filters(\App\Orchid\Layouts\OrderTabs\OrderFilterLayout::class)
+                    ->with(['items.product'])
                     ->where('user_id', $user->id)
                     ->where('archived', 'non')
                     ->latest()
@@ -87,7 +88,7 @@ class CommandesScreen extends Screen
                     NewOrderLayout::class,
                 ],
                 'Historique' => [
-                    \App\Orchid\Filters\CommandesFilter::class,
+                    \App\Orchid\Layouts\OrderTabs\OrderFilterLayout::class,
                     OrderLayout::class,
                 ],
             ]),

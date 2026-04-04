@@ -2,17 +2,16 @@
 
 namespace App\Orchid\Layouts\OrderTabs;
 
-use Orchid\Screen\Layouts\Table;
-use Orchid\Screen\TD;
+use Orchid\Screen\Layouts\Selection;
 use App\Orchid\Filters\CommandesFilter;
 
 
-class OrderFilterLayout extends Table
+class OrderFilterLayout extends Selection
 {
     /**
-     * @return string[]|Filter[]
+     * Retourne la liste des filtres Orchid
      */
-    public function filters(): array
+    public function filters(): iterable
     {
         return [
             CommandesFilter::class,
