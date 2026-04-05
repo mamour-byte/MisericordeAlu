@@ -9,7 +9,6 @@ use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Button;
 use Illuminate\Support\Facades\Auth;
-use App\Orchid\Filters\ShopFilter;
 
 class StockLayout extends Table
 {
