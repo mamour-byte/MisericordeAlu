@@ -22,7 +22,7 @@ class StockScreen extends Screen
     public function query(): iterable
         {
             return [
-                'products' => Product::filters(ShopFilterLayout::class)
+                'products' => Product::filters([ShopFilter::class])
                     ->with('category', 'stockMovements')
                     ->whereHas('stockMovements', function ($query) {
                         $query->where('type', 'entry');
