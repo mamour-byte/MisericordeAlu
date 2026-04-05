@@ -6,8 +6,6 @@ use Orchid\Screen\Screen;
 use App\Orchid\Layouts\StockLayout;
 use App\Orchid\Filters\ShopFilter;
 use App\Models\Product;
-use App\Models\Shop;
-use Orchid\Support\Facades\Layout;
 use App\Orchid\Layouts\ShopFilterLayout;
 
 
